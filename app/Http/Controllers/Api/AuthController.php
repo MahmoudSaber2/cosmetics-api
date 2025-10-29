@@ -24,14 +24,14 @@ class AuthController extends BaseApiController
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'email' => [__('auth.failed')],
             ]);
         }
 
         // Check if user has admin access (admin or manager role)
         if (!$user->hasAdminAccess()) {
             throw ValidationException::withMessages([
-                'email' => ['Access denied. Admin privileges required.'],
+                'email' => [__('messages.forbidden')],
             ]);
         }
 
@@ -45,7 +45,7 @@ class AuthController extends BaseApiController
                 'role' => $user->role,
             ],
             'token' => $token,
-        ], 'User logged in successfully');
+        ], 'messages.success');
     }
 
     /**
@@ -55,7 +55,7 @@ class AuthController extends BaseApiController
     {
         $request->user()->currentAccessToken()->delete();
 
-        return $this->sendResponse([], 'User logged out successfully');
+        return $this->sendResponse([], 'messages.success');
     }
 
     /**
@@ -63,6 +63,6 @@ class AuthController extends BaseApiController
      */
     public function user(Request $request)
     {
-        return $this->sendResponse($request->user(), 'User retrieved successfully');
+        return $this->sendResponse($request->user(), 'messages.retrieved');
     }
 }

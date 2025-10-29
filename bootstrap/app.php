@@ -14,6 +14,18 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'locale' => \App\Http\Middleware\SetLocale::class,
+            'api.locale' => \App\Http\Middleware\ApiLocale::class,
+        ]);
+
+        // Apply locale middleware to web routes
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
+        ]);
+
+        // Apply API locale middleware to API routes
+        $middleware->api(append: [
+            \App\Http\Middleware\ApiLocale::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

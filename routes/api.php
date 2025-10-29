@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FileUploadController;
+use App\Http\Controllers\Api\LocaleController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\ClientController;
 use App\Http\Controllers\Api\Admin\ProductController;
@@ -22,6 +23,14 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+// Locale API routes (no authentication required)
+Route::prefix('locale')->group(function () {
+    Route::get('/', [LocaleController::class, 'index']);
+    Route::get('/translations', [LocaleController::class, 'translations']);
+    Route::get('/validation', [LocaleController::class, 'validationMessages']);
+    Route::get('/auth', [LocaleController::class, 'authMessages']);
+});
 
 // Public API routes (no authentication required)
 Route::prefix('public')->group(function () {
