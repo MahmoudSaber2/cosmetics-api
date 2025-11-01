@@ -32,6 +32,13 @@ Route::prefix('locale')->group(function () {
     Route::get('/auth', [LocaleController::class, 'authMessages']);
 });
 
+// Authentication routes
+Route::prefix('auth')->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+    Route::middleware('auth:sanctum')->get('/user', [AuthController::class, 'user']);
+});
+
 // Public API routes (no authentication required)
 Route::prefix('public')->group(function () {
     // Product routes
@@ -52,13 +59,6 @@ Route::prefix('public')->group(function () {
     Route::get('/orders/{id}', [PublicOrderController::class, 'show']);
     Route::get('/orders-track', [PublicOrderController::class, 'trackByEmail']);
     Route::post('/orders-validate-cart', [PublicOrderController::class, 'validateCart']);
-
-    // Authentication routes
-    Route::prefix('auth')->group(function () {
-        Route::post('/login', [AuthController::class, 'login']);
-        Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-        Route::middleware('auth:sanctum')->get('/user', [AuthController::class, 'user']);
-    });
 });
 
 // File upload routes (authentication required)
