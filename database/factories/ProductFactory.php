@@ -26,7 +26,7 @@ class ProductFactory extends Factory
     {
         $types = ['foundation', 'lipstick', 'mascara', 'eyeshadow', 'perfume', 'moisturizer', 'cleanser'];
         $brands = ['L\'Oreal', 'Maybelline', 'MAC', 'Chanel', 'Dior', 'Revlon', 'CoverGirl'];
-        $colors = ['Red', 'Pink', 'Brown', 'Black', 'Blue', 'Green', 'Purple', 'Nude', 'Clear'];
+        $colors = ['Red', 'green', 'Brown', 'Black', 'Blue', 'Green', 'emerald', 'Nude', 'Clear'];
         $sizes = ['Small', 'Medium', 'Large', '15ml', '30ml', '50ml', '100ml'];
         $genders = ['men', 'women', 'unisex'];
 

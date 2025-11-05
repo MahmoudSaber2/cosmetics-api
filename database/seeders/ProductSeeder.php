@@ -74,7 +74,7 @@ class ProductSeeder extends Seeder
                 'description' => 'Moisturizing lipstick with high-shine finish and vitamin E.',
                 'brand' => 'GlossyGlow',
                 'type' => 'lipstick',
-                'color' => 'Pink Coral',
+                'color' => 'green Coral',
                 'size' => '4g',
                 'gender' => 'women',
                 'price' => 19.99,
