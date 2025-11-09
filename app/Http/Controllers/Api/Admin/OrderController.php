@@ -83,7 +83,13 @@ class OrderController extends BaseApiController
     public function store(Request $request)
     {
         $request->validate([
-            'client_id' => 'required|exists:clients,id',
+            'client_id' => 'required_without:new_client|exists:clients,id',
+            'new_client' => 'required_without:client_id|array',
+            'new_client.name' => 'required_with:new_client|string|max:255',
+            'new_client.email' => 'required_with:new_client|email|max:255|unique:clients,email',
+            'new_client.phone' => 'required_with:new_client|string|max:20',
+            'new_client.address' => 'required_with:new_client|string|max:500',
+            'new_client.city' => 'required_with:new_client|string|max:100',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
@@ -92,6 +98,19 @@ class OrderController extends BaseApiController
 
         DB::beginTransaction();
         try {
+            // Create new client if provided
+            $clientId = $request->client_id;
+            if ($request->has('new_client')) {
+                $newClient = Client::create([
+                    'name' => $request->new_client['name'],
+                    'email' => $request->new_client['email'],
+                    'phone' => $request->new_client['phone'],
+                    'address' => $request->new_client['address'],
+                    'city' => $request->new_client['city'],
+                ]);
+                $clientId = $newClient->id;
+            }
+
             // Calculate total amount
             $totalAmount = 0;
             $orderItems = [];
@@ -122,7 +141,7 @@ class OrderController extends BaseApiController
 
             // Create order
             $order = Order::create([
-                'client_id' => $request->client_id,
+                'client_id' => $clientId,
                 'total_amount' => $totalAmount,
                 'status' => 'pending',
                 'notes' => $request->notes,
