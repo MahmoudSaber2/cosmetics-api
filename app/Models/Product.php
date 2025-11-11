@@ -23,7 +23,12 @@ class Product extends Model
         'color',
         'size',
         'gender',
-        'price',
+        'selling_price',
+        'purchase_price',
+        'discount_type',
+        'discount_value',
+        'discount_start_date',
+        'discount_end_date',
         'image_url',
         'image_path',
         'thumbnail_url',
@@ -37,7 +42,11 @@ class Product extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'price' => 'decimal:2',
+        'selling_price' => 'decimal:2',
+        'purchase_price' => 'decimal:2',
+        'discount_value' => 'decimal:2',
+        'discount_start_date' => 'datetime',
+        'discount_end_date' => 'datetime',
     ];
 
     /**
@@ -55,7 +64,12 @@ class Product extends Model
             'color' => 'nullable|string|max:100',
             'size' => 'nullable|string|max:50',
             'gender' => 'required|in:men,women,unisex',
-            'price' => 'required|numeric|min:0',
+            'selling_price' => 'required|numeric|min:0',
+            'purchase_price' => 'nullable|numeric|min:0',
+            'discount_type' => 'nullable|in:percentage,fixed',
+            'discount_value' => 'nullable|numeric|min:0',
+            'discount_start_date' => 'nullable|date',
+            'discount_end_date' => 'nullable|date|after_or_equal:discount_start_date',
             'image_url' => 'nullable|string|max:500',
             'status' => 'required|in:active,inactive',
         ];
@@ -190,5 +204,65 @@ class Product extends Model
         }
 
         return $this->inventory->stock_quantity <= $this->inventory->min_stock_level;
+    }
+
+    /**
+     * Check if product has active discount
+     */
+    public function hasActiveDiscount(): bool
+    {
+        if (!$this->discount_type || !$this->discount_value) {
+            return false;
+        }
+
+        $now = now();
+
+        // If no dates set, discount is always active
+        if (!$this->discount_start_date && !$this->discount_end_date) {
+            return true;
+        }
+
+        // Check if current date is within discount period
+        if ($this->discount_start_date && $now < $this->discount_start_date) {
+            return false;
+        }
+
+        if ($this->discount_end_date && $now > $this->discount_end_date) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Calculate discount amount
+     */
+    public function getDiscountAmount(): float
+    {
+        if (!$this->hasActiveDiscount()) {
+            return 0;
+        }
+
+        if ($this->discount_type === 'percentage') {
+            return ($this->selling_price * $this->discount_value) / 100;
+        }
+
+        return $this->discount_value;
+    }
+
+    /**
+     * Get final price after discount
+     */
+    public function getFinalPrice(): float
+    {
+        return max(0, $this->selling_price - $this->getDiscountAmount());
+    }
+
+    /**
+     * Get price attribute (for backward compatibility)
+     */
+    public function getPriceAttribute(): float
+    {
+        return $this->getFinalPrice();
     }
 }

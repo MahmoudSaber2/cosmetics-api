@@ -122,8 +122,15 @@ class ProductController extends BaseApiController
                 'color' => $product->color,
                 'size' => $product->size,
                 'gender' => $product->gender,
-                'price' => $product->price,
+                'selling_price' => $product->selling_price,
+                'purchase_price' => $product->purchase_price,
+                'discount_type' => $product->discount_type,
+                'discount_value' => $product->discount_value,
+                'discount_start_date' => $product->discount_start_date,
+                'discount_end_date' => $product->discount_end_date,
+                'price' => $product->getFinalPrice(), // Final price after discount
                 'image_url' => $product->image_url,
+                'thumbnail_url' => $product->thumbnail_url,
                 'status' => $product->status,
                 'inventory' => [
                     'stock_quantity' => $product->getStockQuantity(),
@@ -131,6 +138,7 @@ class ProductController extends BaseApiController
                 ],
                 'in_stock' => $product->isInStock(),
                 'is_low_stock' => $product->isLowStock(),
+                'stock_quantity' => $product->getStockQuantity(),
             ];
         });
 
@@ -165,8 +173,15 @@ class ProductController extends BaseApiController
             'color' => $product->color,
             'size' => $product->size,
             'gender' => $product->gender,
-            'price' => $product->price,
+            'selling_price' => $product->selling_price,
+            'purchase_price' => $product->purchase_price,
+            'discount_type' => $product->discount_type,
+            'discount_value' => $product->discount_value,
+            'discount_start_date' => $product->discount_start_date,
+            'discount_end_date' => $product->discount_end_date,
+            'price' => $product->getFinalPrice(), // Final price after discount
             'image_url' => $product->image_url,
+            'thumbnail_url' => $product->thumbnail_url,
             'status' => $product->status,
             'inventory' => [
                 'stock_quantity' => $product->getStockQuantity(),
@@ -174,6 +189,7 @@ class ProductController extends BaseApiController
             ],
             'in_stock' => $product->isInStock(),
             'is_low_stock' => $product->isLowStock(),
+            'stock_quantity' => $product->getStockQuantity(),
             'created_at' => $product->created_at,
             'updated_at' => $product->updated_at,
         ];
@@ -279,14 +295,21 @@ class ProductController extends BaseApiController
                 'name' => $product->name,
                 'brand' => $product->brand,
                 'type' => $product->type,
-                'price' => $product->price,
+                'selling_price' => $product->selling_price,
+                'discount_type' => $product->discount_type,
+                'discount_value' => $product->discount_value,
+                'discount_start_date' => $product->discount_start_date,
+                'discount_end_date' => $product->discount_end_date,
+                'price' => $product->getFinalPrice(),
                 'image_url' => $product->image_url,
+                'thumbnail_url' => $product->thumbnail_url,
                 'status' => $product->status,
                 'inventory' => [
                     'stock_quantity' => $product->getStockQuantity(),
                     'min_stock_level' => $product->inventory ? $product->inventory->min_stock_level : 0,
                 ],
                 'in_stock' => $product->isInStock(),
+                'stock_quantity' => $product->getStockQuantity(),
             ];
         });
 
@@ -319,14 +342,21 @@ class ProductController extends BaseApiController
                 'name' => $product->name,
                 'brand' => $product->brand,
                 'type' => $product->type,
-                'price' => $product->price,
+                'selling_price' => $product->selling_price,
+                'discount_type' => $product->discount_type,
+                'discount_value' => $product->discount_value,
+                'discount_start_date' => $product->discount_start_date,
+                'discount_end_date' => $product->discount_end_date,
+                'price' => $product->getFinalPrice(),
                 'image_url' => $product->image_url,
+                'thumbnail_url' => $product->thumbnail_url,
                 'status' => $product->status,
                 'inventory' => [
                     'stock_quantity' => $product->getStockQuantity(),
                     'min_stock_level' => $product->inventory ? $product->inventory->min_stock_level : 0,
                 ],
                 'in_stock' => $product->isInStock(),
+                'stock_quantity' => $product->getStockQuantity(),
             ];
         });
 

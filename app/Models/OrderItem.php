@@ -19,6 +19,9 @@ class OrderItem extends Model
         'product_id',
         'quantity',
         'unit_price',
+        'discount_type',
+        'discount_value',
+        'discount_amount',
         'subtotal',
     ];
 
@@ -30,6 +33,8 @@ class OrderItem extends Model
     protected $casts = [
         'quantity' => 'integer',
         'unit_price' => 'decimal:2',
+        'discount_value' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
         'subtotal' => 'decimal:2',
     ];
 
@@ -45,6 +50,9 @@ class OrderItem extends Model
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
             'unit_price' => 'required|numeric|min:0',
+            'discount_type' => 'nullable|in:percentage,fixed',
+            'discount_value' => 'nullable|numeric|min:0',
+            'discount_amount' => 'nullable|numeric|min:0',
             'subtotal' => 'required|numeric|min:0',
         ];
     }
@@ -66,11 +74,29 @@ class OrderItem extends Model
     }
 
     /**
-     * Calculate subtotal based on quantity and unit price
+     * Calculate discount amount
+     */
+    public function calculateDiscountAmount(): float
+    {
+        if (!$this->discount_type || !$this->discount_value) {
+            return 0;
+        }
+
+        if ($this->discount_type === 'percentage') {
+            return ($this->unit_price * $this->discount_value) / 100;
+        }
+
+        return $this->discount_value;
+    }
+
+    /**
+     * Calculate subtotal based on quantity, unit price and discount
      */
     public function calculateSubtotal(): float
     {
-        return $this->quantity * $this->unit_price;
+        $discountAmount = $this->calculateDiscountAmount();
+        $priceAfterDiscount = max(0, $this->unit_price - $discountAmount);
+        return $this->quantity * $priceAfterDiscount;
     }
 
     /**
@@ -90,11 +116,13 @@ class OrderItem extends Model
         parent::boot();
 
         static::creating(function ($orderItem) {
+            $orderItem->discount_amount = $orderItem->calculateDiscountAmount();
             $orderItem->subtotal = $orderItem->calculateSubtotal();
         });
 
         static::updating(function ($orderItem) {
-            if ($orderItem->isDirty(['quantity', 'unit_price'])) {
+            if ($orderItem->isDirty(['quantity', 'unit_price', 'discount_type', 'discount_value'])) {
+                $orderItem->discount_amount = $orderItem->calculateDiscountAmount();
                 $orderItem->subtotal = $orderItem->calculateSubtotal();
             }
         });

@@ -83,17 +83,17 @@ class ProductController extends BaseApiController
 
         // Price range filtering
         if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->min_price);
+            $query->where('selling_price', '>=', $request->min_price);
         }
         if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->max_price);
+            $query->where('selling_price', '<=', $request->max_price);
         }
 
         // Sorting
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
 
-        if (in_array($sortBy, ['name', 'brand', 'type', 'price', 'created_at', 'updated_at'])) {
+        if (in_array($sortBy, ['name', 'brand', 'type', 'selling_price', 'created_at', 'updated_at'])) {
             $query->orderBy($sortBy, $sortOrder === 'asc' ? 'asc' : 'desc');
         }
 
@@ -143,7 +143,12 @@ class ProductController extends BaseApiController
             'color',
             'size',
             'gender',
-            'price',
+            'selling_price',
+            'purchase_price',
+            'discount_type',
+            'discount_value',
+            'discount_start_date',
+            'discount_end_date',
             'status'
         ]);
 
@@ -217,7 +222,12 @@ class ProductController extends BaseApiController
             'color',
             'size',
             'gender',
-            'price',
+            'selling_price',
+            'purchase_price',
+            'discount_type',
+            'discount_value',
+            'discount_start_date',
+            'discount_end_date',
             'status'
         ]));
 

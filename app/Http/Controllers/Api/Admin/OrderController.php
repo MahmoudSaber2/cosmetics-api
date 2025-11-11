@@ -93,6 +93,8 @@ class OrderController extends BaseApiController
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
+            'items.*.discount_type' => 'nullable|in:percentage,fixed',
+            'items.*.discount_value' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string|max:1000',
         ]);
 
@@ -127,14 +129,33 @@ class OrderController extends BaseApiController
                     );
                 }
 
-                $unitPrice = $product->price;
-                $subtotal = $item['quantity'] * $unitPrice;
+                $unitPrice = $product->selling_price;
+
+                // Handle discount
+                $discountType = $item['discount_type'] ?? $product->discount_type;
+                $discountValue = $item['discount_value'] ?? $product->discount_value;
+
+                // Calculate discount amount
+                $discountAmount = 0;
+                if ($discountType && $discountValue) {
+                    if ($discountType === 'percentage') {
+                        $discountAmount = ($unitPrice * $discountValue) / 100;
+                    } else {
+                        $discountAmount = $discountValue;
+                    }
+                }
+
+                $priceAfterDiscount = max(0, $unitPrice - $discountAmount);
+                $subtotal = $item['quantity'] * $priceAfterDiscount;
                 $totalAmount += $subtotal;
 
                 $orderItems[] = [
                     'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
                     'unit_price' => $unitPrice,
+                    'discount_type' => $discountType,
+                    'discount_value' => $discountValue,
+                    'discount_amount' => $discountAmount,
                     'subtotal' => $subtotal,
                 ];
             }
@@ -184,6 +205,8 @@ class OrderController extends BaseApiController
             'items' => 'sometimes|array|min:1',
             'items.*.product_id' => 'required_with:items|exists:products,id',
             'items.*.quantity' => 'required_with:items|integer|min:1',
+            'items.*.discount_type' => 'nullable|in:percentage,fixed',
+            'items.*.discount_value' => 'nullable|numeric|min:0',
         ]);
 
         // Only allow updates if order is still pending
@@ -217,8 +240,24 @@ class OrderController extends BaseApiController
                         );
                     }
 
-                    $unitPrice = $product->price;
-                    $subtotal = $item['quantity'] * $unitPrice;
+                    $unitPrice = $product->selling_price;
+
+                    // Handle discount
+                    $discountType = $item['discount_type'] ?? null;
+                    $discountValue = $item['discount_value'] ?? null;
+
+                    // Calculate discount amount
+                    $discountAmount = 0;
+                    if ($discountType && $discountValue) {
+                        if ($discountType === 'percentage') {
+                            $discountAmount = ($unitPrice * $discountValue) / 100;
+                        } else {
+                            $discountAmount = $discountValue;
+                        }
+                    }
+
+                    $priceAfterDiscount = max(0, $unitPrice - $discountAmount);
+                    $subtotal = $item['quantity'] * $priceAfterDiscount;
                     $totalAmount += $subtotal;
 
                     OrderItem::create([
@@ -226,6 +265,9 @@ class OrderController extends BaseApiController
                         'product_id' => $item['product_id'],
                         'quantity' => $item['quantity'],
                         'unit_price' => $unitPrice,
+                        'discount_type' => $discountType,
+                        'discount_value' => $discountValue,
+                        'discount_amount' => $discountAmount,
                         'subtotal' => $subtotal,
                     ]);
                 }
