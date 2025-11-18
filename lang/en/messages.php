@@ -28,4 +28,7 @@ return [
     'updated' => 'Updated successfully',
     'deleted' => 'Deleted successfully',
     'retrieved' => 'Retrieved successfully',
+    'invalid_credentials' => 'The provided credentials are incorrect.',
+    'logged_out' => 'Logged out successfully',
+    'client_has_orders' => 'Cannot delete client with existing orders',
 ];

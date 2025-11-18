@@ -178,8 +178,8 @@ return [
     */
 
     'custom' => [
-        'attribute-name' => [
-            'rule-name' => 'custom-message',
+        'phone' => [
+            'regex' => 'this is not a valid phone number.',
         ],
     ],
 

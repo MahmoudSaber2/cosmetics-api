@@ -20,7 +20,6 @@ class ApiLocale
             ?? $request->get('lang')
             ?? $request->get('locale')
             ?? config('app.locale');
-
         // Extract language code if full locale is provided (e.g., 'ar-SA' -> 'ar')
         $locale = substr($locale, 0, 2);
 

@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\ResponseCode\HttpStatusCode;
+use App\Helpers\ApiResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,20 +16,18 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
-            'locale' => \App\Http\Middleware\SetLocale::class,
-            'api.locale' => \App\Http\Middleware\ApiLocale::class,
-        ]);
-
-        // Apply locale middleware to web routes
-        $middleware->web(append: [
-            \App\Http\Middleware\SetLocale::class,
-        ]);
-
-        // Apply API locale middleware to API routes
-        $middleware->api(append: [
-            \App\Http\Middleware\ApiLocale::class,
+            'locale' => \App\Http\Middleware\ApiLocale::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        //
-    })->create();
+->withExceptions(function (Exceptions $exceptions) {
+
+   $exceptions->render(function (\Illuminate\Database\Eloquent\ModelNotFoundException $e, $request) {
+        return ApiResponse::error( __('messages.not_found'), [], HttpStatusCode::NOT_FOUND);
+    });
+
+    // Catch NotFoundHttpException AFTER Laravel converts it
+    $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $request) {
+        return ApiResponse::error( __('messages.not_found'), [], HttpStatusCode::NOT_FOUND);
+    });
+})->create();
