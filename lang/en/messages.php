@@ -31,4 +31,5 @@ return [
     'invalid_credentials' => 'The provided credentials are incorrect.',
     'logged_out' => 'Logged out successfully',
     'client_has_orders' => 'Cannot delete client with existing orders',
+    'brand_has_products' => 'Cannot delete brand with existing products',
 ];
