@@ -11,13 +11,9 @@ class FilterClient implements Filter
     {
         return $query->where(function ($query) use ($value) {
             $query->where('name', 'like', '%' . $value . '%')
-            ->orWhereHas('phones', function ($q) use ($value) {
-               $q->where('phone', 'like', '%' . $value . '%');
-            })
-            ->orWhereHas('emails', function ($q) use ($value) {
-                $q->where('email', 'like', '%' . $value . '%');
-             });
-
+                ->orWhere('email', 'like', '%' . $value . '%')
+                ->orWhere('phone', 'like', '%' . $value . '%')
+                ->orWhere('city', 'like', '%' . $value . '%');
         });
     }
 }

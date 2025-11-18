@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Enums\StatusEnum;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
 
 class AdminUserSeeder extends Seeder
 {
@@ -16,28 +18,43 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Admin User',
                 'email' => 'admin@admin.com',
-                'password' => bcrypt('mans123456'),
-                'role' => 'admin',
+                'phone' => '1234567890',
+                'address' => 'Admin Address',
+                'password' => 'mans123456',
+                'spatie_role' => 'superAdmin',
+                'status' => StatusEnum::ACTIVE->value,
             ],
             [
                 'name' => 'Store Manager',
                 'email' => 'manager@cosmetics.com',
-                'password' => bcrypt('password'),
-                'role' => 'admin',
+                'phone' => '0987654321',
+                'address' => 'Manager Address',
+                'password' => 'password',
+                'spatie_role' => 'superAdmin',
+                'status' => StatusEnum::ACTIVE->value,
             ],
             [
                 'name' => 'Inventory Manager',
                 'email' => 'inventory@cosmetics.com',
-                'password' => bcrypt('password'),
-                'role' => 'admin',
+                'password' => 'password',
+                'spatie_role' => 'supervisor',
+                'status' => StatusEnum::ACTIVE->value,
             ],
         ];
 
         foreach ($users as $userData) {
-            \App\Models\User::firstOrCreate(
+            $spatieRole = $userData['spatie_role'];
+            unset($userData['spatie_role']);
+
+            $user = User::firstOrCreate(
                 ['email' => $userData['email']],
                 $userData
             );
+
+            // Assign Spatie role
+            if (!$user->hasRole($spatieRole)) {
+                $user->assignRole($spatieRole);
+            }
         }
     }
 }

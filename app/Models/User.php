@@ -3,15 +3,17 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\StatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -22,6 +24,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'status',
+        'phone',
+        'address',
     ];
 
     /**
@@ -44,6 +49,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'status' => StatusEnum::class,
         ];
     }
 
@@ -52,7 +58,7 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->hasRole('superAdmin');
     }
 
     /**
@@ -60,7 +66,7 @@ class User extends Authenticatable
      */
     public function isManager(): bool
     {
-        return $this->role === 'manager';
+        return $this->hasRole('supervisor');
     }
 
     /**
@@ -68,7 +74,43 @@ class User extends Authenticatable
      */
     public function hasAdminAccess(): bool
     {
-        return in_array($this->role, ['admin', 'manager']);
+        return $this->hasAnyRole(['superAdmin', 'supervisor']);
+    }
+
+    /**
+     * Check if user is active
+     */
+    public function isActive(): bool
+    {
+        return $this->status === StatusEnum::ACTIVE;
+    }
+
+    /**
+     * Scope to get only active users
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', StatusEnum::ACTIVE->value);
+    }
+
+    /**
+     * Scope to filter users by status
+     */
+    public function scopeByStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    /**
+     * Scope to search users by name, email, or phone
+     */
+    public function scopeSearch($query, $search)
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('phone', 'like', "%{$search}%");
+        });
     }
 
     /**
@@ -76,7 +118,7 @@ class User extends Authenticatable
      */
     public function scopeAdmins($query)
     {
-        return $query->where('role', 'admin');
+        return $query->role('superAdmin');
     }
 
     /**
@@ -84,6 +126,6 @@ class User extends Authenticatable
      */
     public function scopeManagers($query)
     {
-        return $query->where('role', 'manager');
+        return $query->role('supervisor');
     }
 }

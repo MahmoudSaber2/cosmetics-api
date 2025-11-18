@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Api\BaseApiController;
 use App\Models\Product;
@@ -8,14 +8,26 @@ use App\Models\Inventory;
 use App\Services\FileUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
+use App\Http\Controllers\Controller;
 
-class ProductController extends BaseApiController
+class ProductController extends Controller implements HasMiddleware
 {
     protected $fileUploadService;
 
-    public function __construct(FileUploadService $fileUploadService)
+    public static function middleware(): array
     {
-        $this->fileUploadService = $fileUploadService;
+        return [
+            new Middleware('auth:sanctum'),
+            new Middleware('permission:all_products', only:['index']),
+            new Middleware('permission:create_product', only:['store']),
+            new Middleware('permission:edit_product', only:['show']),
+            new Middleware('permission:update_product', only:['update']),
+            new Middleware('permission:delete_product', only:['destroy']),
+        ];
     }
     /**
      * Display a listing of products with optional search and filtering.
