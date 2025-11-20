@@ -32,4 +32,5 @@ return [
     'logged_out' => 'Logged out successfully',
     'client_has_orders' => 'Cannot delete client with existing orders',
     'brand_has_products' => 'Cannot delete brand with existing products',
+    'product_has_orders' => 'Cannot delete product with existing orders',
 ];

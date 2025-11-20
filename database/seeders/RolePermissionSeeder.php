@@ -39,6 +39,13 @@ class RolePermissionSeeder extends Seeder
             'edit_brand',
             'update_brand',
             'delete_brand',
+
+            // Category Management
+            'all_categories',
+            'create_category',
+            'edit_category',
+            'update_category',
+            'delete_category',
             // Product Management
             'all_products',
             'create_product',

@@ -159,7 +159,7 @@ return [
     'starts_with' => 'The :attribute field must start with one of the following: :values.',
     'string' => 'The :attribute field must be a string.',
     'timezone' => 'The :attribute field must be a valid timezone.',
-    'unique' => 'The :attribute has already been taken.',
+    'unique' => ':attribute موجود من قبل .',
     'uploaded' => 'The :attribute failed to upload.',
     'uppercase' => 'The :attribute field must be uppercase.',
     'url' => 'The :attribute field must be a valid URL.',
@@ -201,6 +201,9 @@ return [
         'phone' => 'رقم الهاتف',
         'address' => 'العنوان',
         'city' => 'المدينة',
+        'slug' => 'الاسم المختصر',
+        'description' => 'الوصف',
+        'status' => 'الحالة',
     ],
 
 ];

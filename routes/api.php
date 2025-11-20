@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\Admin\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Admin\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Admin\BrandController;
+use App\Http\Controllers\Api\V1\Admin\CategoryController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\FileUploadController;
 use App\Http\Controllers\Api\V1\LocaleController;
@@ -135,6 +136,12 @@ Route::prefix('v1/')
 
             // ---------- BRANDS ----------
             Route::apiResource('brands', BrandController::class);
+
+            // ---------- CATEGORIES ----------
+            Route::apiResource('categories', CategoryController::class);
+
+            // ---------- PRODUCTS ----------
+            Route::apiResource('products', ProductController::class);
 
             // ---------- CLIENTS ----------
             Route::apiResource('clients', ClientController::class);

@@ -16,13 +16,14 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->text('description')->nullable();
-            $table->foreignId('brand_id')->constrained('brands')->onDelete('cascade');
-            $table->string('color')->nullable();
-            $table->string('size')->nullable();
+            $table->string('slug')->unique();
+            $table->foreignId('brand_id')->nullable()->constrained('brands')->onDelete('cascade');
+            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('cascade');
             $table->decimal('cost', 10, 3)->nullable();
             $table->decimal('price', 10, 3);
             $table->tinyInteger('status')->default(ProductStatusEnum::ACTIVE->value);
             $table->smallInteger('min_stock')->default(0);
+            $table->boolean('has_stock')->default(false);
             $table->timestamps();
         });
     }
