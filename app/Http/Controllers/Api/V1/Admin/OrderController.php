@@ -2,7 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
-use App\Http\Controllers\Api\BaseApiController;
+use App\Enums\DiscountTypeEnum;
+use App\Enums\OrderStatusEnum;
+use App\Enums\ResponseCode\HttpStatusCode;
+use App\Filters\Order\FilterOrder;
+use App\Filters\Order\FilterOrderDate;
+use App\Helpers\ApiResponse;
+use App\Http\Requests\V1\Order\StoreOrderRequest;
+use App\Http\Resources\V1\Order\OrderCollection;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Client;
@@ -13,191 +20,155 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\Order\UpdateOrderRequest;
+use App\Http\Resources\V1\Order\OrderResource;
 
-class OrderController extends BaseApiController
+class OrderController extends Controller implements HasMiddleware
 {
-    public function __construct()
-    {
-        $this->middleware('auth:sanctum');
-        $this->middleware('permission:view-orders')->only(['index', 'show', 'statistics', 'statusCounts']);
-        $this->middleware('permission:create-orders')->only('store');
-        $this->middleware('permission:update-orders')->only('update');
-        $this->middleware('permission:delete-orders')->only('destroy');
-        $this->middleware('permission:approve-orders')->only('approve');
-        $this->middleware('permission:reject-orders')->only('reject');
-        $this->middleware('permission:complete-orders')->only('complete');
-    }
-
     /**
      * Display a listing of orders with optional filtering.
      */
+    public function __construct()
+    {
+
+    }
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('auth:sanctum'),
+            // new Middleware('permission:all_orders', only:['index']),
+            // new Middleware('permission:create_order', only:['store']),
+            // new Middleware('permission:edit_order', only:['show']),
+            // new Middleware('permission:update_order', only:['update']),
+            // new Middleware('permission:delete_order', only:['destroy']),
+        ];
+    }
     public function index(Request $request)
     {
-        $query = Order::with(['client', 'orderItems.product']);
+        $orders = QueryBuilder::for(Order::class)
+            ->allowedFilters([
+                AllowedFilter::exact('status', 'status'),
+                AllowedFilter::exact('client', 'client_id'),
+                AllowedFilter::custom('date', new FilterOrderDate()),
+                AllowedFilter::custom('search', new FilterOrder()),
+            ])
+            ->defaultSort('-created_at')
+            ->allowedSorts(['created_at', 'total_amount', 'status'])
+            ->with(['client', 'orderItems.product'])
+            ->paginate($request->get('perPage', 15));
 
-        // Filter by status
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Filter by client
-        if ($request->filled('client_id')) {
-            $query->where('client_id', $request->client_id);
-        }
-
-        // Search by client name or email
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->whereHas('client', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        // Filter by date range
-        if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
-        }
-        if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
-        }
-
-        // Filter by amount range
-        if ($request->filled('min_amount')) {
-            $query->where('total_amount', '>=', $request->min_amount);
-        }
-        if ($request->filled('max_amount')) {
-            $query->where('total_amount', '<=', $request->max_amount);
-        }
-
-        // Sorting
-        $sortBy = $request->get('sort_by', 'created_at');
-        $sortOrder = $request->get('sort_order', 'desc');
-
-        if (in_array($sortBy, ['total_amount', 'status', 'created_at', 'updated_at'])) {
-            $query->orderBy($sortBy, $sortOrder === 'asc' ? 'asc' : 'desc');
-        }
-
-        // Pagination
-        $perPage = min($request->get('per_page', 15), 100);
-        $orders = $query->paginate($perPage);
-
-        return $this->sendResponse([
-            'data' => $orders->items(),
-            'current_page' => $orders->currentPage(),
-            'last_page' => $orders->lastPage(),
-            'per_page' => $orders->perPage(),
-            'total' => $orders->total(),
-            'from' => $orders->firstItem(),
-            'to' => $orders->lastItem(),
-        ], 'Orders retrieved successfully');
+        return ApiResponse::success(new OrderCollection($orders));
     }
 
     /**
      * Store a newly created order (admin can create orders on behalf of clients).
      */
-    public function store(Request $request)
+    public function store(StoreOrderRequest $request)
     {
-        $request->validate([
-            'client_id' => 'required_without:new_client|exists:clients,id',
-            'new_client' => 'required_without:client_id|array',
-            'new_client.name' => 'required_with:new_client|string|max:255',
-            'new_client.email' => 'required_with:new_client|email|max:255|unique:clients,email',
-            'new_client.phone' => 'required_with:new_client|string|max:20',
-            'new_client.address' => 'required_with:new_client|string|max:500',
-            'new_client.city' => 'required_with:new_client|string|max:100',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.discount_type' => 'nullable|in:percentage,fixed',
-            'items.*.discount_value' => 'nullable|numeric|min:0',
-            'notes' => 'nullable|string|max:1000',
-        ]);
-
-        DB::beginTransaction();
         try {
+
+            $data = $request->validated();
+
+            DB::beginTransaction();
+
             // Create new client if provided
-            $clientId = $request->client_id;
-            if ($request->has('new_client')) {
+            $clientId = $request->clientId;
+            if ($request->has('clientId') && $request->clientId === null) {
                 $newClient = Client::create([
-                    'name' => $request->new_client['name'],
-                    'email' => $request->new_client['email'],
-                    'phone' => $request->new_client['phone'],
-                    'address' => $request->new_client['address'],
-                    'city' => $request->new_client['city'],
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'phone' => $data['phone'],
+                    'address' => $data['address'],
+                    'city' => $data['city'],
                 ]);
                 $clientId = $newClient->id;
             }
 
             // Calculate total amount
             $totalAmount = 0;
+            $totalCost = 0;
             $orderItems = [];
 
-            foreach ($request->items as $item) {
-                $product = Product::findOrFail($item['product_id']);
+            foreach ($data['orderItems'] as $item) {
+                $product = Product::findOrFail($item['productId']);
 
                 // Check stock availability
-                if (!$product->inventory || $product->inventory->stock_quantity < $item['quantity']) {
-                    return $this->sendError(
+                if (!$product->inventory || $product->inventory->quantity < $item['quantity']) {
+                    return ApiResponse::error(
                         'Insufficient stock for product: ' . $product->name,
-                        ['stock' => 'Not enough stock available'],
-                        400
+                        [],
+                        HttpStatusCode::BAD_REQUEST
                     );
                 }
 
-                $unitPrice = $product->selling_price;
+                $unitPrice = $product->price;
+                $unitCost = $product->cost;
 
-                // Handle discount
-                $discountType = $item['discount_type'] ?? $product->discount_type;
-                $discountValue = $item['discount_value'] ?? $product->discount_value;
-
-                // Calculate discount amount
-                $discountAmount = 0;
-                if ($discountType && $discountValue) {
-                    if ($discountType === 'percentage') {
-                        $discountAmount = ($unitPrice * $discountValue) / 100;
-                    } else {
-                        $discountAmount = $discountValue;
-                    }
-                }
-
-                $priceAfterDiscount = max(0, $unitPrice - $discountAmount);
-                $subtotal = $item['quantity'] * $priceAfterDiscount;
-                $totalAmount += $subtotal;
+                $totalAmount += $item['quantity'] * $unitPrice;
+                $totalCost += $item['quantity'] * $unitCost;
 
                 $orderItems[] = [
-                    'product_id' => $item['product_id'],
+                    'productId' => $item['productId'],
                     'quantity' => $item['quantity'],
-                    'unit_price' => $unitPrice,
-                    'discount_type' => $discountType,
-                    'discount_value' => $discountValue,
-                    'discount_amount' => $discountAmount,
-                    'subtotal' => $subtotal,
+                    'price' => $unitPrice,
+                    'cost' => $unitCost,
+                    'subtotalCost' => $item['quantity'] * $unitCost,
+                    'subtotal' => $item['quantity'] * $unitPrice,
                 ];
             }
 
+            $totalAfterDiscount = $totalAmount;
+
+            if($data['discount'] ?? false) {
+                if(($data['discount_type'] ?? null) === 'percentage') {
+                    $discountAmount = ($totalAmount * $data['discount']) / 100;
+                } else {
+                    $discountAmount = $data['discount'];
+                }
+                $totalAfterDiscount = max(0, $totalAmount - $discountAmount);
+            }
             // Create order
             $order = Order::create([
                 'client_id' => $clientId,
                 'total_amount' => $totalAmount,
-                'status' => 'pending',
-                'notes' => $request->notes,
+                'total_cost' => $totalCost,
+                'status' => $data['status'],
+                'note' => $data['note'],
+                'discount' => $data['discount'] ?? 0,
+                'discount_type' => $data['discountType'] ?? null,
+                'total_after_discount' => $totalAfterDiscount
             ]);
 
             // Create order items
             foreach ($orderItems as $itemData) {
-                $itemData['order_id'] = $order->id;
-                OrderItem::create($itemData);
-            }
+                $itemData['orderId'] = $order->id;
+                OrderItem::create([
+                    'order_id' => $itemData['orderId'],
+                    'product_id' => $itemData['productId'],
+                    'quantity' => $itemData['quantity'],
+                    'price' => $itemData['price'],
+                    'cost' => $itemData['cost'],
+                    'total_cost' => $itemData['subtotalCost'],
+                    'total_price' => $itemData['subtotal'],
+                ]);
 
-            $order->load(['client', 'orderItems.product']);
+                if($order->status === OrderStatusEnum::APPROVED || $order->status === OrderStatusEnum::COMPLETED) {
+                    // Reduce stock
+                    $product = Product::findOrFail($itemData['productId']);
+                    $product->inventory->reduceStock($itemData['quantity']);
+                }
+            }
 
             DB::commit();
 
-            return $this->sendResponse($order, 'Order created successfully', 201);
+            return ApiResponse::success([], __('messages.created'), HttpStatusCode::CREATED);
         } catch (\Exception $e) {
             DB::rollback();
-            return $this->sendError('Failed to create order', ['error' => $e->getMessage()], 500);
+            return ApiResponse::error(__('messages.error'), [
+                'error' => $e->getMessage()
+            ], HttpStatusCode::INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -207,121 +178,143 @@ class OrderController extends BaseApiController
     public function show(Order $order)
     {
         $order->load(['client', 'orderItems.product.inventory']);
-        return $this->sendResponse($order, 'Order retrieved successfully');
+        return ApiResponse::success(new OrderResource($order));
     }
 
     /**
      * Update the specified order.
      */
-    public function update(Request $request, Order $order)
+    public function update(UpdateOrderRequest $request, Order $order)
     {
-        $request->validate([
-            'status' => 'sometimes|in:pending,approved,rejected,completed',
-            'notes' => 'nullable|string|max:1000',
-            'items' => 'sometimes|array|min:1',
-            'items.*.product_id' => 'required_with:items|exists:products,id',
-            'items.*.quantity' => 'required_with:items|integer|min:1',
-            'items.*.discount_type' => 'nullable|in:percentage,fixed',
-            'items.*.discount_value' => 'nullable|numeric|min:0',
-        ]);
+        try{
+            $data = $request->validated();
 
-        // Only allow updates if order is still pending
-        if ($order->status !== 'pending' && $request->has('items')) {
-            return $this->sendError(
-                'Cannot modify items of non-pending orders',
-                ['order' => 'Order items can only be modified when status is pending'],
-                400
-            );
-        }
+            DB::beginTransaction();
 
-        DB::beginTransaction();
-        try {
-            // Update order items if provided
-            if ($request->has('items')) {
-                // Delete existing order items
-                $order->orderItems()->delete();
+            $totalCost = 0;
+            $totalAmount = 0;
+            $totalAmountAfterDiscount = 0;
 
-                // Calculate new total amount
-                $totalAmount = 0;
+            $orderItems = [];
+            foreach ($data['orderItems'] as $key => $item) {
 
-                foreach ($request->items as $item) {
-                    $product = Product::findOrFail($item['product_id']);
+                $product = Product::findOrFail($item['productId']);
 
-                    // Check stock availability
-                    if (!$product->inventory || $product->inventory->stock_quantity < $item['quantity']) {
-                        return $this->sendError(
-                            'Insufficient stock for product: ' . $product->name,
-                            ['stock' => 'Not enough stock available'],
-                            400
-                        );
-                    }
-
-                    $unitPrice = $product->selling_price;
-
-                    // Handle discount
-                    $discountType = $item['discount_type'] ?? null;
-                    $discountValue = $item['discount_value'] ?? null;
-
-                    // Calculate discount amount
-                    $discountAmount = 0;
-                    if ($discountType && $discountValue) {
-                        if ($discountType === 'percentage') {
-                            $discountAmount = ($unitPrice * $discountValue) / 100;
-                        } else {
-                            $discountAmount = $discountValue;
-                        }
-                    }
-
-                    $priceAfterDiscount = max(0, $unitPrice - $discountAmount);
-                    $subtotal = $item['quantity'] * $priceAfterDiscount;
-                    $totalAmount += $subtotal;
-
-                    OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $item['product_id'],
-                        'quantity' => $item['quantity'],
-                        'unit_price' => $unitPrice,
-                        'discount_type' => $discountType,
-                        'discount_value' => $discountValue,
-                        'discount_amount' => $discountAmount,
-                        'subtotal' => $subtotal,
-                    ]);
+                // Check stock availability
+                if (!$product->inventory || $product->inventory->quantity < $item['quantity'] && $item['actionStatus'] != 3) {
+                    return ApiResponse::error(
+                        'Insufficient stock for product: ' . $product->name,
+                        [],
+                        HttpStatusCode::BAD_REQUEST
+                    );
                 }
 
-                $order->total_amount = $totalAmount;
+                $unitPrice = $product->price;
+                $unitCost = $product->cost;
+
+                $totalAmount += $item['quantity'] * $unitPrice;
+                $totalCost += $item['quantity'] * $unitCost;
+
+                $orderItems[] = [
+                    'orderItemId' => $item['orderItemId'] ?? null,
+                    'productId' => $item['productId'],
+                    'quantity' => $item['quantity'],
+                    'price' => $unitPrice,
+                    'cost' => $unitCost,
+                    'subtotalCost' => $item['quantity'] * $unitCost,
+                    'subtotal' => $item['quantity'] * $unitPrice,
+                    'actionStatus' => $item['actionStatus']
+                ];
+
+            }
+            // Update order items logic can be added here
+            foreach ($orderItems as $key => $item) {
+                if($item['actionStatus'] == 3){ // Delete
+                    $orderItem = OrderItem::findOrFail($item['orderItemId']);
+                    $orderItem->delete();
+                    continue;
+                }
+                if($item['actionStatus'] == 1){ // New Item
+                    $product = Product::findOrFail($item['productId']);
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'product_id' => $item['productId'],
+                        'quantity' => $item['quantity'],
+                        'price' => $product->price,
+                        'cost' => $product->cost,
+                        'total_cost' => $item['quantity'] * $product->cost,
+                        'total_price' => $item['quantity'] * $product->price,
+                    ]);
+
+                    $totalAmount += $item['quantity'] * $product->price;
+                    $totalCost += $item['quantity'] * $product->cost;
+                }
+
+                if($item['actionStatus'] == 2){ // Update Item
+                    $orderItem = OrderItem::findOrFail($item['orderItemId']);
+                    $product = Product::findOrFail($item['productId']);
+                    $orderItem->update([
+                        'quantity' => $item['quantity'],
+                        'price' => $product->price,
+                        'cost' => $product->cost,
+                        'total_cost' => $item['quantity'] * $product->cost,
+                        'total_price' => $item['quantity'] * $product->price,
+                    ]);
+                    $totalAmount += $item['quantity'] * $product->price;
+                    $totalCost += $item['quantity'] * $product->cost;
+                }
+
+                if(($order->status === OrderStatusEnum::APPROVED || $order->status === OrderStatusEnum::COMPLETED) && $item['actionStatus'] != 3){
+                    // Reduce stock
+                    $product = Product::findOrFail($item['productId']);
+                    $product->inventory->reduceStock($item['quantity']);
+                }
             }
 
-            // Update order status and notes
-            if ($request->has('status')) {
-                $order->status = $request->status;
-            }
-            if ($request->has('notes')) {
-                $order->notes = $request->notes;
+            $totalAmountAfterDiscount = $totalAmount;
+
+            if($data['discount'] ?? false) {
+                if(($data['discountType'] ?? null) == DiscountTypeEnum::PERCENTAGE->value) {
+                    $discountAmount = ($totalAmount * $data['discount']) / 100;
+                } elseif(($data['discountType'] ?? null) == DiscountTypeEnum::FIXED->value) {
+                    $discountAmount = $data['discount'];
+                }
+                $totalAmountAfterDiscount = max(0, $totalAmount - $discountAmount);
+            } else {
+                $totalAmountAfterDiscount = $totalAmount;
             }
 
-            $order->save();
-            $order->load(['client', 'orderItems.product']);
+            $order->update([
+                'total_amount' => $totalAmount,
+                'total_cost' => $totalCost,
+                'status' => $data['status'],
+                'note' => $data['note'],
+                'discount' => $data['discount'] ?? 0,
+                'discount_type' => $data['discountType'],
+                'total_after_discount' => $totalAmountAfterDiscount
+            ]);
+
 
             DB::commit();
+            return ApiResponse::success([], 'Order updated successfully');
 
-            return $this->sendResponse($order, 'Order updated successfully');
         } catch (\Exception $e) {
             DB::rollback();
-            return $this->sendError('Failed to update order', ['error' => $e->getMessage()], 500);
+            return ApiResponse::error('Failed to update order', [
+                'error' => $e->getMessage()
+            ], HttpStatusCode::INTERNAL_SERVER_ERROR);
         }
     }
 
-    /**
-     * Remove the specified order.
-     */
+
     public function destroy(Order $order)
     {
         // Only allow deletion of pending or rejected orders
-        if (!in_array($order->status, ['pending', 'rejected'])) {
-            return $this->sendError(
-                'Cannot delete approved or completed orders',
-                ['order' => 'Only pending or rejected orders can be deleted'],
-                400
+        if (!in_array($order->status, [OrderStatusEnum::PENDING, OrderStatusEnum::REJECTED])) {
+            return ApiResponse::error(
+                'Only pending or rejected orders can be deleted',
+                [],
+                HttpStatusCode::BAD_REQUEST
             );
         }
 
@@ -335,10 +328,10 @@ class OrderController extends BaseApiController
 
             DB::commit();
 
-            return $this->sendResponse([], 'Order deleted successfully');
+            return ApiResponse::success([], 'Order deleted successfully');
         } catch (\Exception $e) {
             DB::rollback();
-            return $this->sendError('Failed to delete order', ['error' => $e->getMessage()], 500);
+            return ApiResponse::error('Failed to delete order', ['error' => $e->getMessage()], HttpStatusCode::INTERNAL_SERVER_ERROR);
         }
     }
 

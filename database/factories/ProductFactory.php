@@ -2,8 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Enums\ProductStatusEnum;
+use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
@@ -24,43 +28,39 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
-        $types = ['foundation', 'lipstick', 'mascara', 'eyeshadow', 'perfume', 'moisturizer', 'cleanser'];
-        $brands = ['L\'Oreal', 'Maybelline', 'MAC', 'Chanel', 'Dior', 'Revlon', 'CoverGirl'];
-        $colors = ['Red', 'green', 'Brown', 'Black', 'Blue', 'Green', 'emerald', 'Nude', 'Clear'];
-        $sizes = ['Small', 'Medium', 'Large', '15ml', '30ml', '50ml', '100ml'];
-        $genders = ['men', 'women', 'unisex'];
+        $name = $this->faker->unique()->words(3, true);
+
+
 
         return [
-            'name' => $this->faker->words(3, true) . ' ' . $this->faker->randomElement($types),
-            'description' => $this->faker->paragraph(),
-            'brand' => $this->faker->randomElement($brands),
-            'type' => $this->faker->randomElement($types),
-            'color' => $this->faker->randomElement($colors),
-            'size' => $this->faker->randomElement($sizes),
-            'gender' => $this->faker->randomElement($genders),
-            'price' => $this->faker->randomFloat(2, 5, 200),
-            'image_url' => null,
-            'status' => $this->faker->randomElement(['active', 'inactive']),
+            'name'        => $name,
+            'description' => $this->faker->sentence(10),
+            'slug'        => Str::slug($name),
+
+            'brand_id'    => Brand::inRandomOrder()->first()?->id ?? Brand::factory(),
+            'category_id' => Category::inRandomOrder()->first()?->id ?? Category::factory(),
+
+            'cost'        => $this->faker->numberBetween(50, 200),
+            'price'       => $this->faker->numberBetween(100, 500),
+
+            'status'      => $this->faker->randomElement(ProductStatusEnum::values()),
+
+            'min_stock'   => $this->faker->numberBetween(1, 10),
+
+            'has_stock'   => $this->faker->boolean(70),  // 70% products have stock
         ];
+
     }
 
-    /**
-     * Indicate that the product is active.
-     */
-    public function active(): static
+    public function configure()
     {
-        return $this->state(fn(array $attributes) => [
-            'status' => 'active',
-        ]);
+        return $this->afterCreating(function ($product) {
+            if ($product->has_stock) {
+                \App\Models\Inventory::factory()->create([
+                    'product_id' => $product->id,
+                ]);
+            }
+        });
     }
 
-    /**
-     * Indicate that the product is inactive.
-     */
-    public function inactive(): static
-    {
-        return $this->state(fn(array $attributes) => [
-            'status' => 'inactive',
-        ]);
-    }
 }

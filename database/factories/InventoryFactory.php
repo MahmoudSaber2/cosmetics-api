@@ -27,29 +27,8 @@ class InventoryFactory extends Factory
     {
         return [
             'product_id' => Product::factory(),
-            'stock_quantity' => $this->faker->numberBetween(0, 500),
-            'min_stock_level' => $this->faker->numberBetween(5, 20),
+            'quantity'   => $this->faker->numberBetween(1, 100),
         ];
     }
 
-    /**
-     * Indicate that the inventory is out of stock.
-     */
-    public function outOfStock(): static
-    {
-        return $this->state(fn(array $attributes) => [
-            'stock_quantity' => 0,
-        ]);
-    }
-
-    /**
-     * Indicate that the inventory is low in stock.
-     */
-    public function lowStock(): static
-    {
-        return $this->state(fn(array $attributes) => [
-            'stock_quantity' => 3,
-            'min_stock_level' => 10,
-        ]);
-    }
 }

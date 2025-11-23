@@ -18,44 +18,11 @@ class OrderItem extends Model
         'order_id',
         'product_id',
         'quantity',
-        'unit_price',
-        'discount_type',
-        'discount_value',
-        'discount_amount',
-        'subtotal',
+        'price',
+        'cost',
+        'total_cost',
+        'total_price',
     ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'quantity' => 'integer',
-        'unit_price' => 'decimal:2',
-        'discount_value' => 'decimal:2',
-        'discount_amount' => 'decimal:2',
-        'subtotal' => 'decimal:2',
-    ];
-
-    /**
-     * Get the validation rules for order item data
-     *
-     * @return array<string, string>
-     */
-    public static function validationRules(): array
-    {
-        return [
-            'order_id' => 'required|exists:orders,id',
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-            'unit_price' => 'required|numeric|min:0',
-            'discount_type' => 'nullable|in:percentage,fixed',
-            'discount_value' => 'nullable|numeric|min:0',
-            'discount_amount' => 'nullable|numeric|min:0',
-            'subtotal' => 'required|numeric|min:0',
-        ];
-    }
 
     /**
      * Get the order that owns the order item
@@ -76,22 +43,6 @@ class OrderItem extends Model
     /**
      * Calculate discount amount
      */
-    public function calculateDiscountAmount(): float
-    {
-        if (!$this->discount_type || !$this->discount_value) {
-            return 0;
-        }
-
-        if ($this->discount_type === 'percentage') {
-            return ($this->unit_price * $this->discount_value) / 100;
-        }
-
-        return $this->discount_value;
-    }
-
-    /**
-     * Calculate subtotal based on quantity, unit price and discount
-     */
     public function calculateSubtotal(): float
     {
         $discountAmount = $this->calculateDiscountAmount();
@@ -106,25 +57,5 @@ class OrderItem extends Model
     {
         $this->subtotal = $this->calculateSubtotal();
         return $this->save();
-    }
-
-    /**
-     * Boot method to automatically calculate subtotal
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($orderItem) {
-            $orderItem->discount_amount = $orderItem->calculateDiscountAmount();
-            $orderItem->subtotal = $orderItem->calculateSubtotal();
-        });
-
-        static::updating(function ($orderItem) {
-            if ($orderItem->isDirty(['quantity', 'unit_price', 'discount_type', 'discount_value'])) {
-                $orderItem->discount_amount = $orderItem->calculateDiscountAmount();
-                $orderItem->subtotal = $orderItem->calculateSubtotal();
-            }
-        });
     }
 }

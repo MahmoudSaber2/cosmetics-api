@@ -146,5 +146,8 @@ Route::prefix('v1/')
             // ---------- CLIENTS ----------
             Route::apiResource('clients', ClientController::class);
 
+            // ---------- ORDERS ----------
+            Route::apiResource('orders', OrderController::class);
+
         });
     });

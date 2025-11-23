@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,8 +18,12 @@ class Order extends Model
     protected $fillable = [
         'client_id',
         'total_amount',
+        'total_cost',
         'status',
-        'notes',
+        'note',
+        'discount',
+        'discount_type',
+        'total_after_discount',
     ];
 
     /**
@@ -27,22 +32,19 @@ class Order extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'total_amount' => 'decimal:2',
+        'status' => OrderStatusEnum::class,
     ];
 
-    /**
-     * Get the validation rules for order data
-     *
-     * @return array<string, string>
-     */
-    public static function validationRules(): array
+    public static function boot()
     {
-        return [
-            'client_id' => 'required|exists:clients,id',
-            'total_amount' => 'required|numeric|min:0',
-            'status' => 'required|in:pending,approved,rejected,completed',
-            'notes' => 'nullable|string|max:1000',
-        ];
+        parent::boot();
+
+        static::creating(function ($model) {
+            $date = now()->format('dmY');      // e.g. 11202025
+            $random = rand(1000, 9999);        // 4 random digits
+
+            $model->number = 'ORD-' . $date . $random;
+        });
     }
 
     /**
@@ -97,78 +99,5 @@ class Order extends Model
             $this->notes = $reason;
         }
         return $this->save();
-    }
-
-    /**
-     * Complete the order
-     */
-    public function complete(): bool
-    {
-        $this->status = 'completed';
-        return $this->save();
-    }
-
-    /**
-     * Check if order is pending
-     */
-    public function isPending(): bool
-    {
-        return $this->status === 'pending';
-    }
-
-    /**
-     * Check if order is approved
-     */
-    public function isApproved(): bool
-    {
-        return $this->status === 'approved';
-    }
-
-    /**
-     * Check if order is rejected
-     */
-    public function isRejected(): bool
-    {
-        return $this->status === 'rejected';
-    }
-
-    /**
-     * Check if order is completed
-     */
-    public function isCompleted(): bool
-    {
-        return $this->status === 'completed';
-    }
-
-    /**
-     * Scope to get pending orders
-     */
-    public function scopePending($query)
-    {
-        return $query->where('status', 'pending');
-    }
-
-    /**
-     * Scope to get approved orders
-     */
-    public function scopeApproved($query)
-    {
-        return $query->where('status', 'approved');
-    }
-
-    /**
-     * Scope to get rejected orders
-     */
-    public function scopeRejected($query)
-    {
-        return $query->where('status', 'rejected');
-    }
-
-    /**
-     * Scope to get completed orders
-     */
-    public function scopeCompleted($query)
-    {
-        return $query->where('status', 'completed');
     }
 }

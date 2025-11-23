@@ -100,7 +100,7 @@ class Inventory extends Model
      */
     public function increaseStock(int $quantity): bool
     {
-        $this->stock_quantity += $quantity;
+        $this->quantity += $quantity;
         return $this->save();
     }
 
