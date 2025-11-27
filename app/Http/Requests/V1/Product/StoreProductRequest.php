@@ -46,4 +46,5 @@ class StoreProductRequest extends FormRequest
             ApiResponse::error('', $validator->errors(), HttpStatusCode::UNPROCESSABLE_ENTITY)
         );
     }
+
 }

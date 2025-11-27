@@ -2,11 +2,15 @@
 
 namespace App\Http\Requests\V1\User;
 
+use App\Enums\ResponseCode\HttpStatusCode;
 use App\Enums\StatusEnum;
+use App\Helpers\ApiResponse;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
-
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
 class UpdateUserRequest extends FormRequest
 {
     /**
@@ -40,23 +44,31 @@ class UpdateUserRequest extends FormRequest
         ];
     }
 
+        public function failedValidation(Validator $validator)
+    {
+
+        throw new HttpResponseException(
+            ApiResponse::error('', $validator->errors(), HttpStatusCode::UNPROCESSABLE_ENTITY)
+        );
+    }
+
     /**
      * Get custom error messages for validation rules.
      */
-    public function messages(): array
-    {
-        return [
-            'name.max' => 'The name must not exceed 255 characters.',
-            'email.email' => 'Please provide a valid email address.',
-            'email.unique' => 'This email address is already registered.',
-            'email.max' => 'The email must not exceed 255 characters.',
-            'password.min' => 'The password must be at least 8 characters.',
-            'password.confirmed' => 'The password confirmation does not match.',
-            'phone.regex' => 'The phone number format is invalid.',
-            'phone.max' => 'The phone number must not exceed 20 characters.',
-            'address.max' => 'The address must not exceed 500 characters.',
-            'roles.array' => 'The roles must be provided as an array.',
-            'roles.*.exists' => 'One or more selected roles do not exist.',
-        ];
-    }
+    // public function messages(): array
+    // {
+    //     return [
+    //         'name.max' => 'The name must not exceed 255 characters.',
+    //         'email.email' => 'Please provide a valid email address.',
+    //         'email.unique' => 'This email address is already registered.',
+    //         'email.max' => 'The email must not exceed 255 characters.',
+    //         'password.min' => 'The password must be at least 8 characters.',
+    //         'password.confirmed' => 'The password confirmation does not match.',
+    //         'phone.regex' => 'The phone number format is invalid.',
+    //         'phone.max' => 'The phone number must not exceed 20 characters.',
+    //         'address.max' => 'The address must not exceed 500 characters.',
+    //         'roles.array' => 'The roles must be provided as an array.',
+    //         'roles.*.exists' => 'One or more selected roles do not exist.',
+    //     ];
+    // }
 }

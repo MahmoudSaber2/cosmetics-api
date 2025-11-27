@@ -35,6 +35,7 @@ class OrderResource extends JsonResource
             ],
             'orderItems' => OrderItemResource::collection($this->whenLoaded('orderItems')),
             'createdAt' => Carbon::parse($this->created_at)->translatedFormat('d/m/y h:i A'),
+            'rejectionReason' => $this->rejection_reason??''
         ];
     }
 }

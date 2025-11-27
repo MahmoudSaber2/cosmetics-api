@@ -100,4 +100,31 @@ class Order extends Model
         }
         return $this->save();
     }
+
+    private function cleanNumber($value)
+    {
+        return rtrim(rtrim(number_format($value, 3, '.', ''), '0'), '.');
+    }
+
+    public function getTotalAmountAttribute($value)
+    {
+        return $this->cleanNumber($value);
+    }
+
+    public function getTotalCostAttribute($value)
+    {
+        return $this->cleanNumber($value);
+    }
+
+    public function getTotalAfterDiscountAttribute($value)
+    {
+        return $this->cleanNumber($value);
+    }
+
+    public function getDiscountAttribute($value)
+    {
+        return $this->cleanNumber($value);
+    }
+
+
 }

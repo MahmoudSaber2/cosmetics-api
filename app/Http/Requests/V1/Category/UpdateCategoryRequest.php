@@ -2,11 +2,14 @@
 
 namespace App\Http\Requests\V1\Category;
 
+use App\Enums\ResponseCode\HttpStatusCode;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use App\Enums\StatusEnum;
-
+use App\Helpers\ApiResponse;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
 class UpdateCategoryRequest extends FormRequest
 {
     /**
@@ -40,5 +43,13 @@ class UpdateCategoryRequest extends FormRequest
             ],
             'status' => ['required', new Enum(StatusEnum::class)],
         ];
+    }
+
+    public function failedValidation(Validator $validator)
+    {
+
+        throw new HttpResponseException(
+            ApiResponse::error('', $validator->errors(), HttpStatusCode::UNPROCESSABLE_ENTITY)
+        );
     }
 }

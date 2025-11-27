@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class ProductMedia extends Model
 {
@@ -16,4 +18,12 @@ class ProductMedia extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    protected function url(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value ? Storage::disk('public')->url($value) : "",
+        );
+    }
+
 }

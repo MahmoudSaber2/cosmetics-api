@@ -17,11 +17,9 @@ class AllProductResource extends JsonResource
     {
 
         $brand = $this->brand ? [
-            'id' => $this->brand->id,
             'name' => $this->brand->name,
         ] : [];
         $category = $this->category ? [
-            'id' => $this->category->id,
             'name' => $this->category->name,
         ] : [];
         $media = $this->media ?[
@@ -35,8 +33,6 @@ class AllProductResource extends JsonResource
         return [
             'productId' => $this->id,
             'name' => $this->name,
-            'description' => $this->description,
-            'slug' => $this->slug,
             'brand' => $brand,
             'category' => $category,
             'media' => $media,

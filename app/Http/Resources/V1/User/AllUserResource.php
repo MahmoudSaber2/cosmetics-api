@@ -22,7 +22,7 @@ class AllUserResource extends JsonResource
             'phone' => $this->phone??'',
             'status' => $this->status,
             'roleName' => $this->roles->first()->name,
-            'createdAt' => Carbon::parse($this->created_at)->format('d/m/Y H:i:s'),
+            'createdAt' => Carbon::parse($this->created_at)->translatedFormat('d/m/Y h:i A'),
         ];
     }
 }

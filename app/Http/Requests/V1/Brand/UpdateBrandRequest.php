@@ -4,6 +4,10 @@ namespace App\Http\Requests\V1\Brand;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
+use App\Enums\ResponseCode\HttpStatusCode;
+use App\Helpers\ApiResponse;
 
 class UpdateBrandRequest extends FormRequest
 {
@@ -30,5 +34,13 @@ class UpdateBrandRequest extends FormRequest
                 Rule::unique('brands', 'name')->ignore($brandId)
             ],
         ];
+    }
+
+    public function failedValidation(Validator $validator)
+    {
+
+        throw new HttpResponseException(
+            ApiResponse::error('', $validator->errors(), HttpStatusCode::UNPROCESSABLE_ENTITY)
+        );
     }
 }

@@ -87,11 +87,11 @@ class Inventory extends Model
      */
     public function reduceStock(int $quantity): bool
     {
-        if ($this->stock_quantity < $quantity) {
+        if ($this->quantity < $quantity) {
             return false;
         }
 
-        $this->stock_quantity -= $quantity;
+        $this->quantity -= $quantity;
         return $this->save();
     }
 

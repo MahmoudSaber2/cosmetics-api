@@ -4,17 +4,15 @@ use App\Http\Controllers\Api\V1\Admin\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Admin\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Admin\BrandController;
 use App\Http\Controllers\Api\V1\Admin\CategoryController;
-use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\FileUploadController;
-use App\Http\Controllers\Api\V1\LocaleController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\ClientController;
 use App\Http\Controllers\Api\V1\Admin\ProductController;
 use App\Http\Controllers\Api\V1\Admin\OrderController;
-use App\Http\Controllers\Api\V1\Admin\InventoryController;
-use App\Http\Controllers\Api\V1\Public\ProductController as PublicProductController;
-use App\Http\Controllers\Api\V1\Public\ClientController as PublicClientController;
-use App\Http\Controllers\Api\V1\Public\OrderController as PublicOrderController;
+use App\Http\Controllers\Api\V1\Admin\DashboardController;
+use App\Http\Controllers\Api\V1\Website\HomeController as WebsiteHomeController;
+use App\Http\Controllers\Api\V1\Website\ProductController as WebsiteProductController;
+use App\Http\Controllers\Api\V1\Website\CategoryController as WebsiteCategoryController;
+use App\Http\Controllers\Api\V1\Website\OrderController as WebsiteOrderController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -148,6 +146,39 @@ Route::prefix('v1/')
 
             // ---------- ORDERS ----------
             Route::apiResource('orders', OrderController::class);
+            Route::put('orders/{order}/approve', [OrderController::class, 'approve']);
+            Route::put('orders/{order}/reject', [OrderController::class, 'reject']);
+            Route::put('orders/{order}/complete', [OrderController::class, 'complete']);
+            Route::get('orders-statistics', [OrderController::class, 'statistics']);
+            Route::get('orders-status-counts', [OrderController::class, 'statusCounts']);
+
+            // ---------- DASHBOARD ----------
+            Route::get('dashboard', [DashboardController::class, 'index']);
+
+        });
+
+        // -------------------- WEBSITE ROUTES --------------------
+        Route::prefix('website')->group(function () {
+
+            // ---------- HOME PAGE ----------
+            Route::get('/home', [WebsiteHomeController::class, 'index']);
+
+            // ---------- CATEGORIES ----------
+            //Route::get('/categories', [WebsiteCategoryController::class, 'index']);
+            //Route::get('/categories/{slug}', [WebsiteCategoryController::class, 'show']);
+
+            // ---------- PRODUCTS ----------
+            Route::get('/products', [WebsiteProductController::class, 'index']);
+            Route::get('/products/{product:slug}', [WebsiteProductController::class, 'show']);
+            Route::get('/products/{product:slug}/related', [WebsiteProductController::class, 'related']);
+
+            // ---------- ORDERS ----------
+            Route::post('/orders', [WebsiteOrderController::class, 'store']);
+            //Route::get('/orders/{orderNumber}', [WebsiteOrderController::class, 'show']);
+            //Route::post('/orders/track', [WebsiteOrderController::class, 'track']);
+            //Route::post('/orders/client-orders', [WebsiteOrderController::class, 'clientOrders']);
+            Route::post('/orders/validate-cart', [WebsiteOrderController::class, 'validateCart']);
+            //Route::post('/orders/{orderNumber}/cancel', [WebsiteOrderController::class, 'cancel']);
 
         });
     });

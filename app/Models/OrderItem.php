@@ -40,22 +40,28 @@ class OrderItem extends Model
         return $this->belongsTo(Product::class);
     }
 
-    /**
-     * Calculate discount amount
-     */
-    public function calculateSubtotal(): float
+    private function cleanNumber($value)
     {
-        $discountAmount = $this->calculateDiscountAmount();
-        $priceAfterDiscount = max(0, $this->unit_price - $discountAmount);
-        return $this->quantity * $priceAfterDiscount;
+        return rtrim(rtrim(number_format($value, 3, '.', ''), '0'), '.');
     }
 
-    /**
-     * Update the subtotal based on quantity and unit price
-     */
-    public function updateSubtotal(): bool
+    public function getTotalCostAttribute($value)
     {
-        $this->subtotal = $this->calculateSubtotal();
-        return $this->save();
+        return $this->cleanNumber($value);
+    }
+
+    public function getTotalPriceAttribute($value)
+    {
+        return $this->cleanNumber($value);
+    }
+
+    public function getCostAttribute($value)
+    {
+        return $this->cleanNumber($value);
+    }
+
+    public function getPriceAttribute($value)
+    {
+        return $this->cleanNumber($value);
     }
 }

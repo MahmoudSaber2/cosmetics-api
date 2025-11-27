@@ -18,7 +18,7 @@ class StoreUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('create-users');
+        return $this->user()->can('create_user');
     }
 
     /**
@@ -48,24 +48,24 @@ class StoreUserRequest extends FormRequest
     /**
      * Get custom error messages for validation rules.
      */
-    public function messages(): array
-    {
-        return [
-            'name.required' => 'The name field is required.',
-            'name.max' => 'The name must not exceed 255 characters.',
-            'email.required' => 'The email field is required.',
-            'email.email' => 'Please provide a valid email address.',
-            'email.unique' => 'This email address is already registered.',
-            'password.required' => 'The password field is required.',
-            'password.min' => 'The password must be at least 8 characters.',
-            'password.confirmed' => 'The password confirmation does not match.',
-            'phone.regex' => 'The phone number format is invalid.',
-            'phone.max' => 'The phone number must not exceed 20 characters.',
-            'address.max' => 'The address must not exceed 500 characters.',
-            'status.in' => 'The status must be either 0 (inactive) or 1 (active).',
-            'roles.required' => 'At least one role must be assigned.',
-            'roles.array' => 'The roles must be provided as an array.',
-            'roles.*.exists' => 'One or more selected roles do not exist.',
-        ];
-    }
+    // public function messages(): array
+    // {
+    //     return [
+    //         'name.required' => 'The name field is required.',
+    //         'name.max' => 'The name must not exceed 255 characters.',
+    //         'email.required' => 'The email field is required.',
+    //         'email.email' => 'Please provide a valid email address.',
+    //         'email.unique' => 'This email address is already registered.',
+    //         'password.required' => 'The password field is required.',
+    //         'password.min' => 'The password must be at least 8 characters.',
+    //         'password.confirmed' => 'The password confirmation does not match.',
+    //         'phone.regex' => 'The phone number format is invalid.',
+    //         'phone.max' => 'The phone number must not exceed 20 characters.',
+    //         'address.max' => 'The address must not exceed 500 characters.',
+    //         'status.in' => 'The status must be either 0 (inactive) or 1 (active).',
+    //         'roles.required' => 'At least one role must be assigned.',
+    //         'roles.array' => 'The roles must be provided as an array.',
+    //         'roles.*.exists' => 'One or more selected roles do not exist.',
+    //     ];
+    // }
 }

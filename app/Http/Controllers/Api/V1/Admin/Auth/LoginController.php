@@ -29,6 +29,12 @@ class LoginController extends Controller
             return ApiResponse::error('', __('messages.invalid_credentials'), HttpStatusCode::UNAUTHORIZED);
         }
 
+        if(!$user->isActive()){
+            return ApiResponse::error(__('messages.in_active_user'), [], HttpStatusCode::UNPROCESSABLE_ENTITY);
+        }
+
+
+
         // Check if user has admin access (admin or manager role)
         if (!$user->hasAdminAccess()) {
             return ApiResponse::error('', __('messages.unauthorized'), HttpStatusCode::UNAUTHORIZED);
@@ -41,7 +47,7 @@ class LoginController extends Controller
             'profile' => new UserProfileResource($user),
             'tokenDetails' => [
                 'accessToken' => $token,
-                'expiresIn' => $expiration,
+                'expiresIn' => $expiration??"",
             ],
             'role' => $user->getRoleNames()->first()->name ?? '',
             'permissions' => $this->userPermissionService->getUserPermissions($user) ?? [],

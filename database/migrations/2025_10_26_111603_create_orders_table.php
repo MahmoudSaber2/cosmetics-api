@@ -24,6 +24,7 @@ return new class extends Migration
             $table->tinyInteger('discount_type')->default(DiscountTypeEnum::NO_DISCOUNT->value);
             $table->tinyInteger('status')->default(OrderStatusEnum::PENDING->value);
             $table->text('note')->nullable();
+            $table->text('rejection_reason')->nullable();
             $table->timestamps();
         });
     }

@@ -28,9 +28,10 @@ class StoreOrderRequest extends FormRequest
     {
         return [
             'clientId' => ['required_if:name,null', 'exists:clients,id'],
-            'name' => ['required_if:clientId,null', 'string', 'max:255'],
+            'name' => ['nullable', 'required_without:clientId', 'string', 'max:255'],
             'email' => [
-                'required_if:clientId,null',
+                'nullable',
+                'required_without:clientId',
                 'email',
                 'max:255',
                 Rule::unique('clients', 'email'),

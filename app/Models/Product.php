@@ -40,6 +40,8 @@ class Product extends Model
     {
         return [
             'status' => ProductStatusEnum::class,
+            'cost' => 'decimal:2',
+            'price' => 'decimal:2',
         ];
     }
 
@@ -56,6 +58,11 @@ class Product extends Model
     public function media()
     {
         return $this->hasOne(ProductMedia::class);
+    }
+
+    public function getProductMediaAttribute()
+    {
+        return $this->media ? $this->media->first() : null;
     }
 
     public function inventory()

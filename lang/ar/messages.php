@@ -33,5 +33,18 @@ return [
     'client_has_orders' => 'لا يمكن حذف العميل لأنه لديه طلبات مرتبطة.',
     'brand_has_products' => 'لا يمكن حذف الماركة لأنها تحتوي على منتجات مرتبطة.',
     'product_has_orders' => 'لا يمكن حذف المنتج لأنه مرتبط بطلبات.',
+    'order_created_successfully' => 'تم إنشاء الطلب بنجاح',
+    'product_out_of_stock' => 'الكمية غير متوفراو المنتج غير متوفر',
+    'product_not_available' => 'المنتج غير متاح',
+    'order_approved_successfully' => 'تمت الموافقة على الطلب بنجاح',
+    'order_rejected_successfully' => 'تم رفض الطلب بنجاح',
+    'order_delivered_successfully' => 'تم تسليم الطلب بنجاح',
+    'order_cancelled_successfully' => 'تم الغاء الطلب بنجاح',
+    'order_returned_successfully' => 'تم استرجاع الطلب بنجاح',
+    'in_active_user' => 'هذا الحساب غير نشط',
+    'only_pending_orders_can_be_approved' => 'يمكن الموافقة على الطلبات المعلقة فقط',
+    'only_pending_orders_can_be_rejected' => 'يمكن رفض الطلبات المعلقة فقط',
+    'only_approved_orders_can_be_completed' => 'يمكن تسليم الطلبات التى تم الموافقة عليها فقط',
+
 
 ];
