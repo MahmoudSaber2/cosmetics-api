@@ -9,6 +9,6 @@ class CategorySelectService
 {
     public function getAllActiveCategories()
     {
-        return Category::where('status', StatusEnum::ACTIVE)->get(['slug as value', 'name as label']);
+        return Category::where('status', StatusEnum::ACTIVE)->get(['id as value', 'name as label']);
     }
 }

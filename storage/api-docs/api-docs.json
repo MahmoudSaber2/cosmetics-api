@@ -15,6 +15,249 @@
         }
     ],
     "paths": {
+        "/api/v1/admin/auth/login": {
+            "post": {
+                "tags": [
+                    "Admin Authentication"
+                ],
+                "summary": "Admin user login",
+                "description": "Authenticate admin user and return access token with user profile and permissions",
+                "operationId": "adminLogin",
+                "parameters": [
+                    {
+                        "name": "Accept-Language",
+                        "in": "header",
+                        "description": "Language preference (ar, en)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "ar"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "description": "User email address",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "admin@example.com"
+                                    },
+                                    "password": {
+                                        "description": "User password",
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Success"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "profile": {
+                                                    "properties": {
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "أحمد محمد"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "admin@example.com"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "tokenDetails": {
+                                                    "properties": {
+                                                        "accessToken": {
+                                                            "type": "string",
+                                                            "example": "1|abcdef123456789"
+                                                        },
+                                                        "expiresIn": {
+                                                            "type": "string",
+                                                            "example": "1440"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "admin"
+                                                },
+                                                "permissions": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "permissionName": {
+                                                                "type": "string",
+                                                                "example": "view_users"
+                                                            },
+                                                            "access": {
+                                                                "type": "boolean",
+                                                                "example": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "بيانات الدخول غير صحيحة"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "example": []
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error or Inactive User",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "المستخدم غير نشط"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "example": []
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/auth/logout": {
+            "post": {
+                "tags": [
+                    "Admin Authentication"
+                ],
+                "summary": "Admin user logout",
+                "description": "Logout admin user and revoke current access token",
+                "operationId": "adminLogout",
+                "parameters": [
+                    {
+                        "name": "Accept-Language",
+                        "in": "header",
+                        "description": "Language preference (ar, en)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "ar"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Logout successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "تم تسجيل الخروج بنجاح"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "example": []
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or expired token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        },
+                                        "error": {
+                                            "type": "object",
+                                            "example": []
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/brands": {
             "get": {
                 "tags": [
@@ -6640,6 +6883,116 @@
                 ]
             }
         },
+        "/api/v1/selects": {
+            "get": {
+                "tags": [
+                    "Select Options"
+                ],
+                "summary": "Get dynamic select options",
+                "description": "Retrieve dynamic select options for forms and dropdowns based on requested selects",
+                "operationId": "getSelectOptions",
+                "parameters": [
+                    {
+                        "name": "Accept-Language",
+                        "in": "header",
+                        "description": "Language preference (ar, en)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "ar"
+                        }
+                    },
+                    {
+                        "name": "allSelects",
+                        "in": "query",
+                        "description": "Comma-separated list of select types to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "users",
+                                "outerCategories"
+                            ],
+                            "example": "users,outerCategories"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Select options retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Success"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "label": {
+                                                        "type": "string",
+                                                        "example": "users"
+                                                    },
+                                                    "options": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "value": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "label": {
+                                                                    "type": "string",
+                                                                    "example": "أحمد محمد"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Bad Request - Invalid select type",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid select type"
+                                        },
+                                        "error": {
+                                            "type": "object",
+                                            "example": []
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/website/home": {
             "get": {
                 "tags": [
@@ -7720,12 +8073,20 @@
     },
     "tags": [
         {
+            "name": "Admin Authentication",
+            "description": "Authentication operations for admin users"
+        },
+        {
             "name": "Admin Dashboard",
             "description": "Dashboard analytics and overview data for administrators"
         },
         {
             "name": "Admin Orders",
             "description": "Order management operations for administrators"
+        },
+        {
+            "name": "Select Options",
+            "description": "Dynamic select options for forms and dropdowns"
         },
         {
             "name": "Website Home",

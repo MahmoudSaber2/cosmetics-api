@@ -184,5 +184,6 @@ Route::prefix('v1/')
         });
 
         // ---------- SELECTS ----------
-        Route::get('v1/selects', [SelectController::class, 'index']);
+                Route::get('selects', [SelectController::class, 'getSelects']);
+
     });
