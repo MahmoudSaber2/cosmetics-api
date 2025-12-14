@@ -458,10 +458,11 @@ const logout = async () => {
 
 ### Select Options Usage
 ```javascript
-// Fetch select options
+// Fetch select options with environment support
 const fetchSelectOptions = async (selectTypes) => {
     try {
-        const response = await fetch(`/api/v1/selects?allSelects=${selectTypes.join(',')}`, {
+        const baseURL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/v1';
+        const response = await fetch(`${baseURL}/selects?allSelects=${selectTypes.join(',')}`, {
             headers: {
                 'Accept': 'application/json',
                 'Accept-Language': 'ar'
@@ -536,7 +537,8 @@ const useAuth = () => {
     const login = async (credentials) => {
         setLoading(true);
         try {
-            const response = await fetch('/api/v1/admin/auth/login', {
+            const baseURL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/v1';
+            const response = await fetch(`${baseURL}/admin/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -568,8 +570,9 @@ const useAuth = () => {
     const logout = async () => {
         try {
             const token = localStorage.getItem('access_token');
+            const baseURL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/v1';
             
-            await fetch('/api/v1/admin/auth/logout', {
+            await fetch(`${baseURL}/admin/auth/logout`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -603,7 +606,8 @@ const useSelectOptions = (selectTypes) => {
         const fetchOptions = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`/api/v1/selects?allSelects=${selectTypes.join(',')}`, {
+                const baseURL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/v1';
+                const response = await fetch(`${baseURL}/selects?allSelects=${selectTypes.join(',')}`, {
                     headers: {
                         'Accept': 'application/json',
                         'Accept-Language': 'ar'

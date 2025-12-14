@@ -19,7 +19,7 @@ use OpenApi\Attributes as OA;
  * )
  *
  * @OA\Server(
- *     url="https://ecv1-api.testingelmo.com/api/v1",
+ *     url="https://ecv1-api.testingelmo.com",
  *     description="Testing server"
  * )
  *
