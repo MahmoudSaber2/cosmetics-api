@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\Admin\ClientController;
 use App\Http\Controllers\Api\V1\Admin\ProductController;
 use App\Http\Controllers\Api\V1\Admin\OrderController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
+use App\Http\Controllers\Api\V1\SelectController;
 use App\Http\Controllers\Api\V1\Website\HomeController as WebsiteHomeController;
 use App\Http\Controllers\Api\V1\Website\ProductController as WebsiteProductController;
 use App\Http\Controllers\Api\V1\Website\CategoryController as WebsiteCategoryController;
@@ -181,4 +182,7 @@ Route::prefix('v1/')
             //Route::post('/orders/{orderNumber}/cancel', [WebsiteOrderController::class, 'cancel']);
 
         });
+
+        // ---------- SELECTS ----------
+        Route::get('v1/selects', [SelectController::class, 'index']);
     });
