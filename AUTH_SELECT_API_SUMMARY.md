@@ -8,7 +8,7 @@
 ### Server Configuration
 - **Multiple Servers**: تم إضافة دعم لعدة servers في OpenAPI documentation
   - **Local Development**: `http://127.0.0.1:8000`
-  - **Testing Server**: `https://ecv1-api.testingelmo.com/api/v1`
+  - **Testing Server**: `https://ecv1-api.testingelmo.com`
 - **Environment Flexibility**: سهولة التبديل بين البيئات المختلفة
 
 ### Authentication API Changes

@@ -14,7 +14,7 @@
             "description": "Local development server"
         },
         {
-            "url": "https://ecv1-api.testingelmo.com/api/v1",
+            "url": "https://ecv1-api.testingelmo.com",
             "description": "Testing server"
         }
     ],
@@ -8069,7 +8069,7 @@
         "securitySchemes": {
             "sanctum": {
                 "type": "http",
-                "description": "Enter token in format: Bearer <token>",
+                "description": "Enter token in format: Bearer <token> to access this API",
                 "bearerFormat": "JWT",
                 "scheme": "bearer"
             }

@@ -11,9 +11,9 @@ This document provides comprehensive documentation for the Authentication and Se
 - **Select Options**: `/api/v1/selects`
 
 ### Testing Server
-- **Base URL**: `https://ecv1-api.testingelmo.com/api/v1`
-- **Authentication**: `/admin/auth`
-- **Select Options**: `/selects`
+- **Base URL**: `https://ecv1-api.testingelmo.com`
+- **Authentication**: `/api/v1/admin/auth`
+- **Select Options**: `/api/v1/selects`
 
 ## Authentication
 - **Login**: No authentication required

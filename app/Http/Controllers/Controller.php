@@ -28,7 +28,7 @@ use OpenApi\Attributes as OA;
  *     type="http",
  *     scheme="bearer",
  *     bearerFormat="JWT",
- *     description="Enter token in format: Bearer <token>"
+ *     description="Enter token in format: Bearer <token> to access this API"
  * )
  */
 abstract class Controller
