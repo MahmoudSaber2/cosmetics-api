@@ -3,6 +3,8 @@
 ## Overview
 This document provides comprehensive testing scenarios for the Authentication and Select Options API endpoints using various tools like Postman, cURL, and automated testing frameworks.
 
+**Note**: All cURL examples below use the local development server (`http://localhost:8000`). To test against the testing server, replace the base URL with `https://ecv1-api.testingelmo.com/api/v1` and adjust the paths accordingly.
+
 ## Prerequisites
 - Test database with sample data (users, categories)
 - API base URLs:

@@ -361,14 +361,41 @@ $categories = $categoryService->getAllActiveCategories();
 
 ---
 
+## Environment Configuration
+
+### Switching Between Servers
+The API supports multiple environments. You can switch between them by changing the base URL:
+
+**Local Development:**
+- Base URL: `http://localhost:8000/api/v1`
+- Full endpoints: `/admin/auth/login`, `/admin/auth/logout`, `/selects`
+
+**Testing Server:**
+- Base URL: `https://ecv1-api.testingelmo.com/api/v1`
+- Full endpoints: `/admin/auth/login`, `/admin/auth/logout`, `/selects`
+
+### Environment Variables
+For frontend applications, use environment variables to manage different server configurations:
+
+```javascript
+// .env.local (for local development)
+REACT_APP_API_BASE_URL=http://localhost:8000/api/v1
+
+// .env.production (for testing server)
+REACT_APP_API_BASE_URL=https://ecv1-api.testingelmo.com/api/v1
+```
+
+---
+
 ## Frontend Integration Examples
 
 ### Authentication Flow
 ```javascript
-// Login function
+// Login function with environment support
 const login = async (credentials) => {
     try {
-        const response = await fetch('/api/v1/admin/auth/login', {
+        const baseURL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/v1';
+        const response = await fetch(`${baseURL}/admin/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -396,12 +423,13 @@ const login = async (credentials) => {
     }
 };
 
-// Logout function
+// Logout function with environment support
 const logout = async () => {
     try {
         const token = localStorage.getItem('access_token');
+        const baseURL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/v1';
         
-        const response = await fetch('/api/v1/admin/auth/logout', {
+        const response = await fetch(`${baseURL}/admin/auth/logout`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
