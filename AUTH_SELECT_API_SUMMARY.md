@@ -5,6 +5,12 @@
 
 ## 📝 Recent Updates
 
+### Server Configuration
+- **Multiple Servers**: تم إضافة دعم لعدة servers في OpenAPI documentation
+  - **Local Development**: `http://127.0.0.1:8000`
+  - **Testing Server**: `https://ecv1-api.testingelmo.com/api/v1`
+- **Environment Flexibility**: سهولة التبديل بين البيئات المختلفة
+
 ### Authentication API Changes
 - **Permissions Structure**: تم تحديث هيكل الصلاحيات من array بسيط إلى array of objects
   - **قبل**: `["view_users", "create_users"]`
@@ -378,10 +384,16 @@ public function failedValidation(Validator $validator)
 
 ### Authentication Integration
 ```javascript
-// Authentication service
+// Authentication service with environment support
 class AuthService {
+    constructor() {
+        this.baseURL = process.env.NODE_ENV === 'production' 
+            ? 'https://ecv1-api.testingelmo.com/api/v1'
+            : 'http://localhost:8000/api/v1';
+    }
+
     async login(credentials) {
-        const response = await fetch('/api/v1/admin/auth/login', {
+        const response = await fetch(`${this.baseURL}/admin/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -407,7 +419,7 @@ class AuthService {
         const token = localStorage.getItem('access_token');
         
         try {
-            await fetch('/api/v1/admin/auth/logout', {
+            await fetch(`${this.baseURL}/admin/auth/logout`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -435,10 +447,16 @@ class AuthService {
 
 ### Select Options Integration
 ```javascript
-// Select options service
+// Select options service with environment support
 class SelectOptionsService {
+    constructor() {
+        this.baseURL = process.env.NODE_ENV === 'production' 
+            ? 'https://ecv1-api.testingelmo.com/api/v1'
+            : 'http://localhost:8000/api/v1';
+    }
+
     async fetchOptions(selectTypes) {
-        const response = await fetch(`/api/v1/selects?allSelects=${selectTypes.join(',')}`, {
+        const response = await fetch(`${this.baseURL}/selects?allSelects=${selectTypes.join(',')}`, {
             headers: {
                 'Accept': 'application/json',
                 'Accept-Language': 'ar'

@@ -4,8 +4,16 @@
 This document provides comprehensive documentation for the Authentication and Select Options API endpoints. These APIs handle admin user authentication and provide dynamic select options for forms and dropdowns.
 
 ## Base URLs
+
+### Local Development
+- **Base URL**: `http://127.0.0.1:8000`
 - **Authentication**: `/api/v1/admin/auth`
 - **Select Options**: `/api/v1/selects`
+
+### Testing Server
+- **Base URL**: `https://ecv1-api.testingelmo.com/api/v1`
+- **Authentication**: `/admin/auth`
+- **Select Options**: `/selects`
 
 ## Authentication
 - **Login**: No authentication required
@@ -40,8 +48,22 @@ Authenticate admin user and return access token with user profile and permission
 - `password`: Required string
 
 #### Example Request
+
+**Local Development:**
 ```bash
 curl -X POST "http://localhost:8000/api/v1/admin/auth/login" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -H "Accept-Language: ar" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "password123"
+  }'
+```
+
+**Testing Server:**
+```bash
+curl -X POST "https://ecv1-api.testingelmo.com/api/v1/admin/auth/login" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -H "Accept-Language: ar" \
@@ -158,8 +180,18 @@ Authorization: Bearer {access_token}
 ```
 
 #### Example Request
+
+**Local Development:**
 ```bash
 curl -X POST "http://localhost:8000/api/v1/admin/auth/logout" \
+  -H "Authorization: Bearer 1|abcdef123456789" \
+  -H "Accept: application/json" \
+  -H "Accept-Language: ar"
+```
+
+**Testing Server:**
+```bash
+curl -X POST "https://ecv1-api.testingelmo.com/api/v1/admin/auth/logout" \
   -H "Authorization: Bearer 1|abcdef123456789" \
   -H "Accept: application/json" \
   -H "Accept-Language: ar"
@@ -208,8 +240,17 @@ Retrieve dynamic select options for forms and dropdowns based on requested selec
 - `outerCategories`: Get all active categories (slug as value, name as label)
 
 #### Example Request
+
+**Local Development:**
 ```bash
 curl -X GET "http://localhost:8000/api/v1/selects?allSelects=users,outerCategories" \
+  -H "Accept: application/json" \
+  -H "Accept-Language: ar"
+```
+
+**Testing Server:**
+```bash
+curl -X GET "https://ecv1-api.testingelmo.com/api/v1/selects?allSelects=users,outerCategories" \
   -H "Accept: application/json" \
   -H "Accept-Language: ar"
 ```

@@ -12,6 +12,10 @@
         {
             "url": "http://127.0.0.1:8000",
             "description": "Local development server"
+        },
+        {
+            "url": "https://ecv1-api.testingelmo.com/api/v1",
+            "description": "Testing server"
         }
     ],
     "paths": {

@@ -18,6 +18,11 @@ use OpenApi\Attributes as OA;
  *     description="Local development server"
  * )
  *
+ * @OA\Server(
+ *     url="https://ecv1-api.testingelmo.com/api/v1",
+ *     description="Testing server"
+ * )
+ *
  * @OA\SecurityScheme(
  *     securityScheme="sanctum",
  *     type="http",

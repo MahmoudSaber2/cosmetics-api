@@ -6,8 +6,14 @@ This document provides comprehensive testing scenarios for the Authentication an
 ## Prerequisites
 - Test database with sample data (users, categories)
 - API base URLs:
-  - Authentication: `http://localhost:8000/api/v1/admin/auth`
-  - Select Options: `http://localhost:8000/api/v1/selects`
+
+### Local Development
+- Authentication: `http://localhost:8000/api/v1/admin/auth`
+- Select Options: `http://localhost:8000/api/v1/selects`
+
+### Testing Server
+- Authentication: `https://ecv1-api.testingelmo.com/api/v1/admin/auth`
+- Select Options: `https://ecv1-api.testingelmo.com/api/v1/selects`
 
 ---
 
@@ -390,9 +396,21 @@ curl -X GET "http://localhost:8000/api/v1/admin/dashboard" \
 ## Postman Collection
 
 ### Environment Variables
+
+**Local Development:**
 ```json
 {
   "base_url": "http://localhost:8000/api/v1",
+  "admin_email": "admin@example.com",
+  "admin_password": "password123",
+  "access_token": ""
+}
+```
+
+**Testing Server:**
+```json
+{
+  "base_url": "https://ecv1-api.testingelmo.com/api/v1",
   "admin_email": "admin@example.com",
   "admin_password": "password123",
   "access_token": ""
