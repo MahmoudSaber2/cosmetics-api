@@ -10,7 +10,7 @@ class FilterWebsiteProductPrice implements Filter
     public function __invoke(Builder $query, $value, string $property)
     {
         // Remove spaces and split by comma
-        $priceRange = array_map('trim', explode(',', $value));
+        $priceRange =$value;
 
         $from = $priceRange[0] ?? null;
         $to   = $priceRange[1] ?? null;

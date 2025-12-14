@@ -15,6 +15,11 @@ This document provides comprehensive documentation for the Authentication and Se
 - **Authentication**: `/api/v1/admin/auth`
 - **Select Options**: `/api/v1/selects`
 
+**Important Note**: The testing server base URL does NOT include `/api/v1` at the end, so the full endpoints will be:
+- Login: `https://ecv1-api.testingelmo.com/api/v1/admin/auth/login`
+- Logout: `https://ecv1-api.testingelmo.com/api/v1/admin/auth/logout`
+- Selects: `https://ecv1-api.testingelmo.com/api/v1/selects`
+
 ## Authentication
 - **Login**: No authentication required
 - **Logout**: Requires Sanctum token authentication
@@ -367,12 +372,18 @@ $categories = $categoryService->getAllActiveCategories();
 The API supports multiple environments. You can switch between them by changing the base URL:
 
 **Local Development:**
-- Base URL: `http://localhost:8000/api/v1`
-- Full endpoints: `/admin/auth/login`, `/admin/auth/logout`, `/selects`
+- Base URL: `http://localhost:8000`
+- Full endpoints: 
+  - Login: `http://localhost:8000/api/v1/admin/auth/login`
+  - Logout: `http://localhost:8000/api/v1/admin/auth/logout`
+  - Selects: `http://localhost:8000/api/v1/selects`
 
 **Testing Server:**
-- Base URL: `https://ecv1-api.testingelmo.com/api/v1`
-- Full endpoints: `/admin/auth/login`, `/admin/auth/logout`, `/selects`
+- Base URL: `https://ecv1-api.testingelmo.com`
+- Full endpoints:
+  - Login: `https://ecv1-api.testingelmo.com/api/v1/admin/auth/login`
+  - Logout: `https://ecv1-api.testingelmo.com/api/v1/admin/auth/logout`
+  - Selects: `https://ecv1-api.testingelmo.com/api/v1/selects`
 
 ### Environment Variables
 For frontend applications, use environment variables to manage different server configurations:
