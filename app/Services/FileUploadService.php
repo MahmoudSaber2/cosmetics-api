@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\MediaTypeEnum;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -175,5 +176,24 @@ class FileUploadService
     public function fileExists(string $path): bool
     {
         return Storage::disk($this->disk)->exists($path);
+    }
+
+    /**
+     * Determine media type based on file extension
+     */
+    public function getMediaType(UploadedFile $file): MediaTypeEnum
+    {
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+        $videoExtensions = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
+
+        if (in_array($extension, $imageExtensions)) {
+            return MediaTypeEnum::IMAGE;
+        } elseif (in_array($extension, $videoExtensions)) {
+            return MediaTypeEnum::VIDEO;
+        }
+
+        return MediaTypeEnum::FILE;
     }
 }

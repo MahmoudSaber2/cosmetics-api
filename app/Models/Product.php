@@ -57,12 +57,17 @@ class Product extends Model
 
     public function media()
     {
-        return $this->hasOne(ProductMedia::class);
+        return $this->hasMany(ProductMedia::class);
+    }
+
+    public function mainMedia()
+    {
+        return $this->hasOne(ProductMedia::class)->where('is_main', true);
     }
 
     public function getProductMediaAttribute()
     {
-        return $this->media ? $this->media->first() : null;
+        return $this->mainMedia;
     }
 
     public function inventory()

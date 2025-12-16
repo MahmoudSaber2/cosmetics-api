@@ -38,7 +38,7 @@ class UpdateProductRequest extends FormRequest
             'price' => ['required', 'numeric', 'min:0'],
             'minStock' => ['nullable', 'integer', 'min:0'],
             'hasStock' => ['required', 'boolean'],
-            'media' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            // Note: Media management is now handled separately through ProductMediaController
         ];
 
 

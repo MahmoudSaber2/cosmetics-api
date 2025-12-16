@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\V1\Admin\CategoryController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\ClientController;
 use App\Http\Controllers\Api\V1\Admin\ProductController;
+use App\Http\Controllers\Api\V1\Admin\ProductMediaController;
+use App\Http\Controllers\Api\V1\Admin\SetProductMediaAsMainController;
 use App\Http\Controllers\Api\V1\Admin\OrderController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\SelectController;
@@ -141,6 +143,12 @@ Route::prefix('v1/')
 
             // ---------- PRODUCTS ----------
             Route::apiResource('products', ProductController::class);
+
+            // ---------- PRODUCT MEDIA ----------
+            Route::get('products/{product}/media', [ProductMediaController::class, 'index']);
+            Route::post('products/{product}/media', [ProductMediaController::class, 'store']);
+            Route::delete('products/{product}/media/{media}', [ProductMediaController::class, 'destroy']);
+            Route::put('products/{product}/media/{media}/set-main', SetProductMediaAsMainController::class);
 
             // ---------- CLIENTS ----------
             Route::apiResource('clients', ClientController::class);

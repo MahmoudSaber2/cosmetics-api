@@ -332,8 +332,17 @@ class ProductController extends Controller implements HasMiddleware
             $data = $request->validated();
             DB::beginTransaction();
             // upload media if exists
+            $uploadedMedia = [];
             if ($request->hasFile('media')) {
-                $mediaData = $this->fileUploadService->uploadImage($request->file('media'), 'products');
+                $files = $request->file('media');
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
+
+                foreach ($files as $file) {
+                    $mediaData = $this->fileUploadService->uploadImage($file, 'products');
+                    $uploadedMedia[] = $mediaData;
+                }
             }
 
             $product = Product::create([
@@ -349,12 +358,15 @@ class ProductController extends Controller implements HasMiddleware
                 'has_stock' => $data['hasStock'],
             ]);
 
-            if (isset($mediaData)) {
-                ProductMedia::create([
-                    'product_id' => $product->id,
-                    'url' => $mediaData['path'],
-                    'media_type' => 'image',
-                ]);
+            if (!empty($uploadedMedia)) {
+                foreach ($uploadedMedia as $index => $mediaData) {
+                    ProductMedia::create([
+                        'product_id' => $product->id,
+                        'url' => $mediaData['path'],
+                        'media_type' => 'image',
+                        'is_main' => $index === 0, // First image is main
+                    ]);
+                }
             }
 
             if(isset($data['minStock']) || isset($data['hasStock'])){
@@ -598,15 +610,7 @@ class ProductController extends Controller implements HasMiddleware
     {
         try{
             $data = $request->validated();
-            // upload media if exists
-            if ($request->hasFile('media')) {
-                // delete old image if exists
-                if ($product->media) {
-                    $this->fileUploadService->deleteImage($product->product_media->getRawOriginal('url'));
-                    $product->media->delete();
-                }
-                $mediaData = $this->fileUploadService->uploadImage($request->file('media'), 'products');
-            }
+            // Note: Media management is now handled separately through ProductMediaController
 
             $product->update([
                 'name' => $data['name'],
@@ -621,13 +625,7 @@ class ProductController extends Controller implements HasMiddleware
                 'has_stock' => $data['hasStock'],
             ]);
 
-            if (isset($mediaData)) {
-                ProductMedia::create([
-                    'product_id' => $product->id,
-                    'url' => $mediaData['path'],
-                    'media_type' => 'image',
-                ]);
-            }
+
 
             // Update or create inventory
             if(isset($data['minStock']) || isset($data['hasStock'])){

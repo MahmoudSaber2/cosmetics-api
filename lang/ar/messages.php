@@ -46,5 +46,12 @@ return [
     'only_pending_orders_can_be_rejected' => 'يمكن رفض الطلبات المعلقة فقط',
     'only_approved_orders_can_be_completed' => 'يمكن تسليم الطلبات التى تم الموافقة عليها فقط',
 
+    // Media Messages
+    'media_uploaded_successfully' => 'تم رفع الملفات بنجاح',
+    'media_deleted_successfully' => 'تم حذف الملف بنجاح',
+    'media_set_as_main' => 'تم تعيين الملف كصورة رئيسية',
+    'media_not_found' => 'الملف غير موجود',
+    'cannot_delete_main_media' => 'لا يمكن حذف الصورة الرئيسية عندما توجد صور أخرى',
+
 
 ];

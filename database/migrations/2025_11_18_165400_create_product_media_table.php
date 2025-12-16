@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('product_media', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
-            $table->string('media_type'); // image, video, etc.
+            $table->string('media_type'); // image, video, file
             $table->string('url');
             $table->timestamps();
         });

@@ -45,4 +45,11 @@ return [
     'only_pending_orders_can_be_approved' => 'Only pending orders can be approved.',
     'only_pending_orders_can_be_rejected' => 'Only pending orders can be rejected.',
     'only_approved_orders_can_be_completed' => 'Only approved orders can be completed.',
+
+    // Media Messages
+    'media_uploaded_successfully' => 'Media uploaded successfully',
+    'media_deleted_successfully' => 'Media deleted successfully',
+    'media_set_as_main' => 'Media set as main successfully',
+    'media_not_found' => 'Media not found',
+    'cannot_delete_main_media' => 'Cannot delete main media when other media exists',
 ];

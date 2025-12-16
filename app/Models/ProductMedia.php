@@ -2,28 +2,53 @@
 
 namespace App\Models;
 
+use App\Enums\IsMainEnum;
+use App\Enums\MediaTypeEnum;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProductMedia extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'product_id',
         'url',
         'media_type',
+        'is_main',
     ];
 
-    public function product()
+    protected $casts = [
+        'is_main' => IsMainEnum::class,
+        'media_type' => MediaTypeEnum::class,
+    ];
+
+    protected $appends = ['full_url'];
+
+    public function getFullUrlAttribute()
+    {
+        return asset("storage/{$this->url}");
+    }
+
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
-    protected function url(): Attribute
+    /**
+     * Scope to get main media only
+     */
+    public function scopeMain($query)
     {
-        return Attribute::make(
-            get: fn ($value) => $value ? Storage::disk('public')->url($value) : "",
-        );
+        return $query->where('is_main', IsMainEnum::MAIN->value);
     }
 
+    /**
+     * Scope to get non-main media only
+     */
+    public function scopeNonMain($query)
+    {
+        return $query->where('is_main', IsMainEnum::NOT_MAIN->value);
+    }
 }

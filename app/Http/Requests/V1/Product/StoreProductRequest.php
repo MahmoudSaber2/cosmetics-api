@@ -35,7 +35,8 @@ class StoreProductRequest extends FormRequest
             'price' => ['required', 'numeric', 'min:0'],
             'minStock' => ['nullable', 'integer', 'min:0'],
             'hasStock' => ['required', 'boolean'],
-            'media' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'media' => ['nullable', 'array', 'max:10'],
+            'media.*' => ['file', 'mimes:jpg,jpeg,png,gif,webp,svg,mp4,avi,mov,wmv,flv,webm', 'max:5120'],
         ];
     }
 

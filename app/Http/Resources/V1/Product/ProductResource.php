@@ -23,10 +23,13 @@ class ProductResource extends JsonResource
             'id' => $this->category->id,
             'name' => $this->category->name,
         ] : [];
-        $media = $this->media ?[
-            'url' => $this->media->url,
-            'mediaType' => $this->media->media_type,
-        ] : [];
+        $media = $this->media->map(fn ($mediaItem) => [
+            'mediaId' => $mediaItem->id,
+            'url' => $mediaItem->url,
+            'fullUrl' => $mediaItem->full_url,
+            'mediaType' => $mediaItem->media_type->value,
+            'isMain' => $mediaItem->is_main->value,
+        ])->toArray();
         $invntory = $this->inventory ? [
             'quantity' => $this->inventory->quantity,
             'stockStatus' => $this->stockStatus
