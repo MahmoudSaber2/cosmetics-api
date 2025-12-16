@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources\V1\Website;
+namespace App\Http\Resources\V2\Website;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -21,9 +21,11 @@ class ProductResource extends JsonResource
             'slug' => $this->slug,
             'price' => $this->price,
             'brand' => $this->when($this->brand, [
+                'id' => $this->brand?->id,
                 'name' => $this->brand?->name,
             ]),
             'category' => $this->when($this->category, [
+                'id' => $this->category?->id,
                 'name' => $this->category?->name,
                 'slug' => $this->category?->slug,
             ]),
