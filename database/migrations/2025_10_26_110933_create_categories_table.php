@@ -1,12 +1,14 @@
 <?php
 
 use App\Enums\StatusEnum;
+use App\Traits\CreatedUpdatedByMigration;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    use CreatedUpdatedByMigration;
     /**
      * Run the migrations.
      */
@@ -18,7 +20,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->tinyInteger('status')->default(StatusEnum::INACTIVE->value);
             $table->string('slug')->unique();
+            $this->createdUpdatedByRelationship($table);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

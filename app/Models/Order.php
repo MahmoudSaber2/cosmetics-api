@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Enums\OrderPaidEnum;
 use App\Enums\OrderStatusEnum;
+use App\Traits\CreatedUpdatedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, CreatedUpdatedBy, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -20,6 +23,7 @@ class Order extends Model
         'total_amount',
         'total_cost',
         'status',
+        'payment_status',
         'note',
         'discount',
         'discount_type',
@@ -33,6 +37,7 @@ class Order extends Model
      */
     protected $casts = [
         'status' => OrderStatusEnum::class,
+        'payment_status' => OrderPaidEnum::class,
     ];
 
     public static function boot()
@@ -64,6 +69,22 @@ class Order extends Model
     }
 
     /**
+     * Get the payments for the order
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Get the latest payment for the order
+     */
+    public function latestPayment()
+    {
+        return $this->hasOne(Payment::class)->latest();
+    }
+
+    /**
      * Calculate total amount from order items
      */
     public function calculateTotal(): float
@@ -85,18 +106,18 @@ class Order extends Model
      */
     public function approve(): bool
     {
-        $this->status = 'approved';
+        $this->status = OrderStatusEnum::APPROVED;
         return $this->save();
     }
 
     /**
      * Reject the order
      */
-    public function reject(string $reason = null): bool
+    public function reject(?string $reason = null): bool
     {
-        $this->status = 'rejected';
+        $this->status = OrderStatusEnum::REJECTED;
         if ($reason) {
-            $this->notes = $reason;
+            $this->rejection_reason = $reason;
         }
         return $this->save();
     }
@@ -126,5 +147,47 @@ class Order extends Model
         return $this->cleanNumber($value);
     }
 
+    /**
+     * Mark order as paid
+     */
+    public function markAsPaid(): bool
+    {
+        $this->payment_status = OrderPaidEnum::PAID;
+        $this->status = OrderStatusEnum::APPROVED;
+        return $this->save();
+    }
+
+    /**
+     * Mark order as unpaid
+     */
+    public function markAsUnpaid(): bool
+    {
+        $this->payment_status = OrderPaidEnum::UNPAID;
+        return $this->save();
+    }
+
+    /**
+     * Check if order is paid
+     */
+    public function isPaid(): bool
+    {
+        return $this->payment_status === OrderPaidEnum::PAID;
+    }
+
+    /**
+     * Check if order is unpaid
+     */
+    public function isUnpaid(): bool
+    {
+        return $this->payment_status === OrderPaidEnum::UNPAID;
+    }
+
+    /**
+     * Get the amount to be paid (after discount)
+     */
+    public function getPayableAmount(): float
+    {
+        return $this->total_after_discount > 0 ? $this->total_after_discount : $this->total_amount;
+    }
 
 }

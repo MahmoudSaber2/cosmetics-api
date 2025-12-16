@@ -53,5 +53,19 @@ return [
     'media_not_found' => 'الملف غير موجود',
     'cannot_delete_main_media' => 'لا يمكن حذف الصورة الرئيسية عندما توجد صور أخرى',
 
+    // Soft Delete Messages
+    'restored' => 'تم الاستعادة بنجاح',
+    'permanently_deleted' => 'تم الحذف نهائياً',
+
+    // Payment Messages
+    'payment_intent_created' => 'تم إنشاء نية الدفع بنجاح',
+    'payment_intent_creation_failed' => 'فشل في إنشاء نية الدفع',
+    'payment_confirmed' => 'تم تأكيد الدفع بنجاح',
+    'payment_confirmation_failed' => 'فشل في تأكيد الدفع',
+    'payment_status_updated' => 'تم تحديث حالة الدفع',
+    'payment_status_retrieved' => 'تم استرجاع حالة الدفع',
+    'payment_failed' => 'فشل في عملية الدفع',
+    'payment_processing' => 'جاري معالجة الدفع',
+
 
 ];

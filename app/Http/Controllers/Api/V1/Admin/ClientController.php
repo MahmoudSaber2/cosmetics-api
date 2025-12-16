@@ -433,8 +433,8 @@ class ClientController extends Controller implements HasMiddleware
      */
     public function destroy(Client $client)
     {
-        // Check if client has orders
-        if ($client->orders()->exists()) {
+        // Check if client has active orders (not soft deleted)
+        if ($client->orders()->whereNull('deleted_at')->exists()) {
             return ApiResponse::error(__('messages.client_has_orders'), [], HttpStatusCode::UNPROCESSABLE_ENTITY);
         }
 

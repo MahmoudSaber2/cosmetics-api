@@ -1,11 +1,13 @@
 <?php
 
+use App\Traits\CreatedUpdatedByMigration;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    use CreatedUpdatedByMigration;
     /**
      * Run the migrations.
      */
@@ -20,7 +22,9 @@ return new class extends Migration
             $table->decimal('price', 10, 3)->default(0);
             $table->decimal('total_cost', 10, 3)->default(0);
             $table->decimal('total_price', 10, 3)->default(0);
+            $this->createdUpdatedByRelationship($table);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

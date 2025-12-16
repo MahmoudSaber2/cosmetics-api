@@ -722,8 +722,8 @@ class ProductController extends Controller implements HasMiddleware
      */
     public function destroy(Product $product)
     {
-        // Check if product has order items
-        if ($product->orderItems()->exists()) {
+        // Check if product has active order items (not soft deleted)
+        if ($product->orderItems()->whereNull('deleted_at')->exists()) {
             return ApiResponse::error(__('messages.product_has_orders'), [], HttpStatusCode::BAD_REQUEST);
         }
 

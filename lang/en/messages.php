@@ -52,4 +52,18 @@ return [
     'media_set_as_main' => 'Media set as main successfully',
     'media_not_found' => 'Media not found',
     'cannot_delete_main_media' => 'Cannot delete main media when other media exists',
+
+    // Soft Delete Messages
+    'restored' => 'Restored successfully',
+    'permanently_deleted' => 'Permanently deleted',
+
+    // Payment Messages
+    'payment_intent_created' => 'Payment intent created successfully',
+    'payment_intent_creation_failed' => 'Failed to create payment intent',
+    'payment_confirmed' => 'Payment confirmed successfully',
+    'payment_confirmation_failed' => 'Failed to confirm payment',
+    'payment_status_updated' => 'Payment status updated',
+    'payment_status_retrieved' => 'Payment status retrieved',
+    'payment_failed' => 'Payment failed',
+    'payment_processing' => 'Payment is being processed',
 ];

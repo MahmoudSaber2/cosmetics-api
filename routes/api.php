@@ -14,8 +14,26 @@ use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\SelectController;
 use App\Http\Controllers\Api\V1\Website\HomeController as WebsiteHomeController;
 use App\Http\Controllers\Api\V1\Website\ProductController as WebsiteProductController;
-use App\Http\Controllers\Api\V1\Website\CategoryController as WebsiteCategoryController;
+
 use App\Http\Controllers\Api\V1\Website\OrderController as WebsiteOrderController;
+
+// V2 Controllers
+use App\Http\Controllers\Api\V2\Admin\Auth\LoginController as V2LoginController;
+use App\Http\Controllers\Api\V2\Admin\Auth\LogoutController as V2LogoutController;
+use App\Http\Controllers\Api\V2\Admin\BrandController as V2BrandController;
+use App\Http\Controllers\Api\V2\Admin\CategoryController as V2CategoryController;
+use App\Http\Controllers\Api\V2\Admin\UserController as V2UserController;
+use App\Http\Controllers\Api\V2\Admin\ClientController as V2ClientController;
+use App\Http\Controllers\Api\V2\Admin\ProductController as V2ProductController;
+use App\Http\Controllers\Api\V2\Admin\ProductMediaController as V2ProductMediaController;
+use App\Http\Controllers\Api\V2\Admin\SetProductMediaAsMainController as V2SetProductMediaAsMainController;
+use App\Http\Controllers\Api\V2\Admin\OrderController as V2OrderController;
+use App\Http\Controllers\Api\V2\Admin\DashboardController as V2DashboardController;
+use App\Http\Controllers\Api\V2\SelectController as V2SelectController;
+use App\Http\Controllers\Api\V2\Website\HomeController as V2WebsiteHomeController;
+use App\Http\Controllers\Api\V2\Website\ProductController as V2WebsiteProductController;
+use App\Http\Controllers\Api\V2\Website\OrderController as V2WebsiteOrderController;
+use App\Http\Controllers\Api\V2\Website\PaymentController as V2WebsitePaymentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,135 +43,57 @@ use Illuminate\Support\Facades\Route;
 |
 | Here is where you can register API routes for your application. These
 | routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
+| be assigned to the "api" middleware group.
+|
+| API Versioning:
+| - v1: Original API endpoints for admin panel and basic website functionality
+| - v2: Enhanced API endpoints with payment processing and advanced features
 |
 */
 
-// API Version 1 Routes
-// Route::prefix('v1')->group(function () {
-//     // Locale API routes (no authentication required)
-//     Route::prefix('locale')->group(function () {
-//         Route::get('/', [LocaleController::class, 'index']);
-//         Route::get('/translations', [LocaleController::class, 'translations']);
-//         Route::get('/validation', [LocaleController::class, 'validationMessages']);
-//         Route::get('/auth', [LocaleController::class, 'authMessages']);
-//     });
-
-//     // Authentication routes
-//     Route::prefix('auth')->group(function () {
-//         Route::post('/login', [AuthController::class, 'login']);
-//         Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-//         Route::middleware('auth:sanctum')->get('/user', [AuthController::class, 'user']);
-//     });
-
-//     // Public API routes (no authentication required)
-//     Route::prefix('public')->group(function () {
-//         // Product routes
-//         Route::get('/products', [PublicProductController::class, 'index']);
-//         Route::get('/products/{id}', [PublicProductController::class, 'show']);
-//         Route::post('/products/{id}/availability', [PublicProductController::class, 'checkAvailability']);
-//         Route::get('/products/{id}/stock', [PublicProductController::class, 'getStock']);
-//         Route::get('/products-search', [PublicProductController::class, 'search']);
-//         Route::get('/products-featured', [PublicProductController::class, 'featured']);
-//         Route::get('/products-filters', [PublicProductController::class, 'filterOptions']);
-
-//         // Client routes
-//         Route::post('/clients', [PublicClientController::class, 'store']);
-//         Route::get('/clients/by-email', [PublicClientController::class, 'getByEmail']);
-
-//         // Order routes
-//         Route::post('/orders', [PublicOrderController::class, 'store']);
-//         Route::get('/orders/{id}', [PublicOrderController::class, 'show']);
-//         Route::get('/orders-track', [PublicOrderController::class, 'trackByEmail']);
-//         Route::post('/orders-validate-cart', [PublicOrderController::class, 'validateCart']);
-//     });
-
-//     // File upload routes (authentication required)
-//     Route::middleware('auth:sanctum')->group(function () {
-//         Route::post('/upload', [FileUploadController::class, 'upload']);
-//         Route::delete('/upload', [FileUploadController::class, 'delete']);
-//         Route::get('/upload/info', [FileUploadController::class, 'info']);
-//     });
-
-//     // Admin API routes (authentication and admin role required)
-//     Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
-//         // User management routes
-//         Route::apiResource('users', UserController::class);
-//         Route::patch('users/{user}/status', [UserController::class, 'updateStatus']);
-
-//         // Client management routes
-//         Route::apiResource('clients', ClientController::class);
-//         Route::get('clients/{client}/orders', [ClientController::class, 'orders']);
-//         Route::get('clients/{client}/statistics', [ClientController::class, 'statistics']);
-
-//         // Product management routes
-//         Route::apiResource('products', ProductController::class);
-//         Route::get('products-categories', [ProductController::class, 'categories']);
-//         Route::get('products-brands', [ProductController::class, 'brands']);
-//         Route::get('products-colors', [ProductController::class, 'colors']);
-//         Route::patch('products-bulk-status', [ProductController::class, 'bulkUpdateStatus']);
-
-//         // Order management routes
-//         Route::apiResource('orders', OrderController::class);
-//         Route::patch('orders/{order}/approve', [OrderController::class, 'approve']);
-//         Route::patch('orders/{order}/reject', [OrderController::class, 'reject']);
-//         Route::patch('orders/{order}/complete', [OrderController::class, 'complete']);
-//         Route::get('orders-statistics', [OrderController::class, 'statistics']);
-//         Route::get('orders-status-counts', [OrderController::class, 'statusCounts']);
-
-//         // Inventory management routes
-//         Route::get('inventory', [InventoryController::class, 'index']);
-//         Route::get('inventory/{inventory}', [InventoryController::class, 'show']);
-//         Route::patch('inventory/{inventory}', [InventoryController::class, 'update']);
-//         Route::patch('inventory/products/{product}/stock', [InventoryController::class, 'updateStock']);
-//         Route::get('inventory-low-stock', [InventoryController::class, 'lowStockAlerts']);
-//         Route::get('inventory-out-of-stock', [InventoryController::class, 'outOfStockItems']);
-//         Route::get('inventory-statistics', [InventoryController::class, 'statistics']);
-//         Route::patch('inventory-bulk-update', [InventoryController::class, 'bulkUpdateStock']);
-//         Route::get('inventory-movements', [InventoryController::class, 'stockMovements']);
-//         Route::get('inventory-report', [InventoryController::class, 'report']);
-//     });
-// });
-
+/*
+|--------------------------------------------------------------------------
+| API Version 1 Routes
+|--------------------------------------------------------------------------
+| Original API endpoints for admin panel and basic website functionality
+*/
 Route::prefix('v1/')
     ->middleware('locale')
     ->group(function () {
 
-        // -------------------- ADMIN ROUTES --------------------
+        // ==================== ADMIN ROUTES ====================
         Route::prefix('admin')->group(function () {
 
-            // ---------- AUTH ----------
+            // ---------- AUTHENTICATION ----------
             Route::prefix('auth')->group(function () {
                 Route::post('/login', LoginController::class);
                 Route::post('/logout', LogoutController::class);
             });
 
-            // ---------- USERS ----------
-            // Route::get('users/{id}/view', [UserController::class, 'userView']);
+            // ---------- USER MANAGEMENT ----------
             Route::apiResource('users', UserController::class);
-            // Route::apiSingleton('profile', UserProfileController::class);
-            // Route::put('profile/change-password', ChangeCurrentPasswordController::class);
-            // Route::post('users/bulk-action', UserBulkActionController::class);
 
-            // ---------- BRANDS ----------
+            // ---------- BRAND MANAGEMENT ----------
             Route::apiResource('brands', BrandController::class);
+            Route::put('brands/{id}/restore', [BrandController::class, 'restore']);
+            Route::delete('brands/{id}/force-delete', [BrandController::class, 'forceDelete']);
 
-            // ---------- CATEGORIES ----------
+            // ---------- CATEGORY MANAGEMENT ----------
             Route::apiResource('categories', CategoryController::class);
 
-            // ---------- PRODUCTS ----------
+            // ---------- PRODUCT MANAGEMENT ----------
             Route::apiResource('products', ProductController::class);
 
-            // ---------- PRODUCT MEDIA ----------
+            // ---------- PRODUCT MEDIA MANAGEMENT ----------
             Route::get('products/{product}/media', [ProductMediaController::class, 'index']);
             Route::post('products/{product}/media', [ProductMediaController::class, 'store']);
             Route::delete('products/{product}/media/{media}', [ProductMediaController::class, 'destroy']);
             Route::put('products/{product}/media/{media}/set-main', SetProductMediaAsMainController::class);
 
-            // ---------- CLIENTS ----------
+            // ---------- CLIENT MANAGEMENT ----------
             Route::apiResource('clients', ClientController::class);
 
-            // ---------- ORDERS ----------
+            // ---------- ORDER MANAGEMENT ----------
             Route::apiResource('orders', OrderController::class);
             Route::put('orders/{order}/approve', [OrderController::class, 'approve']);
             Route::put('orders/{order}/reject', [OrderController::class, 'reject']);
@@ -166,32 +106,119 @@ Route::prefix('v1/')
 
         });
 
-        // -------------------- WEBSITE ROUTES --------------------
+        // ==================== WEBSITE ROUTES ====================
         Route::prefix('website')->group(function () {
 
             // ---------- HOME PAGE ----------
             Route::get('/home', [WebsiteHomeController::class, 'index']);
 
-            // ---------- CATEGORIES ----------
-            //Route::get('/categories', [WebsiteCategoryController::class, 'index']);
-            //Route::get('/categories/{slug}', [WebsiteCategoryController::class, 'show']);
-
-            // ---------- PRODUCTS ----------
+            // ---------- PRODUCT CATALOG ----------
             Route::get('/products', [WebsiteProductController::class, 'index']);
             Route::get('/products/{product:slug}', [WebsiteProductController::class, 'show']);
             Route::get('/products/{product:slug}/related', [WebsiteProductController::class, 'related']);
 
-            // ---------- ORDERS ----------
+            // ---------- ORDER PROCESSING ----------
             Route::post('/orders', [WebsiteOrderController::class, 'store']);
-            //Route::get('/orders/{orderNumber}', [WebsiteOrderController::class, 'show']);
-            //Route::post('/orders/track', [WebsiteOrderController::class, 'track']);
-            //Route::post('/orders/client-orders', [WebsiteOrderController::class, 'clientOrders']);
             Route::post('/orders/validate-cart', [WebsiteOrderController::class, 'validateCart']);
-            //Route::post('/orders/{orderNumber}/cancel', [WebsiteOrderController::class, 'cancel']);
 
         });
 
-        // ---------- SELECTS ----------
-                Route::get('selects', [SelectController::class, 'getSelects']);
+        // ==================== UTILITY ROUTES ====================
+        Route::get('selects', [SelectController::class, 'getSelects']);
+
+    });
+
+/*
+|--------------------------------------------------------------------------
+| API Version 2 Routes
+|--------------------------------------------------------------------------
+| Enhanced API endpoints with payment processing and advanced features
+*/
+Route::prefix('v2/')
+    ->middleware('locale')
+    ->group(function () {
+
+        // ==================== ADMIN ROUTES V2 ====================
+        Route::prefix('admin')->group(function () {
+
+            // ---------- AUTHENTICATION ----------
+            Route::prefix('auth')->group(function () {
+                Route::post('/login', V2LoginController::class);
+                Route::post('/logout', V2LogoutController::class);
+            });
+
+            // ---------- USER MANAGEMENT ----------
+            Route::apiResource('users', V2UserController::class);
+
+            // ---------- BRAND MANAGEMENT ----------
+            Route::apiResource('brands', V2BrandController::class);
+            Route::put('brands/{id}/restore', [V2BrandController::class, 'restore']);
+            Route::delete('brands/{id}/force-delete', [V2BrandController::class, 'forceDelete']);
+
+            // ---------- CATEGORY MANAGEMENT ----------
+            Route::apiResource('categories', V2CategoryController::class);
+
+            // ---------- PRODUCT MANAGEMENT ----------
+            Route::apiResource('products', V2ProductController::class);
+
+            // ---------- PRODUCT MEDIA MANAGEMENT ----------
+            Route::get('products/{product}/media', [V2ProductMediaController::class, 'index']);
+            Route::post('products/{product}/media', [V2ProductMediaController::class, 'store']);
+            Route::delete('products/{product}/media/{media}', [V2ProductMediaController::class, 'destroy']);
+            Route::put('products/{product}/media/{media}/set-main', V2SetProductMediaAsMainController::class);
+
+            // ---------- CLIENT MANAGEMENT ----------
+            Route::apiResource('clients', V2ClientController::class);
+
+            // ---------- ORDER MANAGEMENT ----------
+            Route::apiResource('orders', V2OrderController::class);
+            Route::put('orders/{order}/approve', [V2OrderController::class, 'approve']);
+            Route::put('orders/{order}/reject', [V2OrderController::class, 'reject']);
+            Route::put('orders/{order}/complete', [V2OrderController::class, 'complete']);
+            Route::get('orders-statistics', [V2OrderController::class, 'statistics']);
+            Route::get('orders-status-counts', [V2OrderController::class, 'statusCounts']);
+
+            // ---------- DASHBOARD ----------
+            Route::get('dashboard', [V2DashboardController::class, 'index']);
+
+        });
+
+        // ==================== WEBSITE ROUTES V2 ====================
+        Route::prefix('website')->group(function () {
+
+            // ---------- HOME PAGE ----------
+            Route::get('/home', [V2WebsiteHomeController::class, 'index']);
+
+            // ---------- PRODUCT CATALOG ----------
+            Route::get('/products', [V2WebsiteProductController::class, 'index']);
+            Route::get('/products/{product:slug}', [V2WebsiteProductController::class, 'show']);
+            Route::get('/products/{product:slug}/related', [V2WebsiteProductController::class, 'related']);
+
+            // ---------- ORDER PROCESSING ----------
+            Route::post('/orders', [V2WebsiteOrderController::class, 'store']);
+            Route::post('/orders/validate-cart', [V2WebsiteOrderController::class, 'validateCart']);
+
+            // ---------- PAYMENT PROCESSING ----------
+            Route::post('orders/{order}/payment/create-intent', [V2WebsitePaymentController::class, 'createPaymentIntent']);
+            Route::post('payments/{payment}/confirm', [V2WebsitePaymentController::class, 'confirmPayment']);
+            Route::get('payments/{payment}/status', [V2WebsitePaymentController::class, 'getPaymentStatus']);
+
+            // ---------- PAYMENT WEBHOOKS ----------
+            Route::post('payments/webhook/stripe', [V2WebsitePaymentController::class, 'handleStripeWebhook']);
+
+        });
+
+        // ==================== UTILITY ROUTES V2 ====================
+        Route::get('selects', [V2SelectController::class, 'getSelects']);
+
+        // ==================== FUTURE V2 ENHANCEMENTS ====================
+        // Additional v2 routes can be added here as the API evolves
+        // Examples:
+        // - Enhanced product search with filters and AI recommendations
+        // - Advanced order tracking with real-time updates
+        // - Customer account management with loyalty programs
+        // - Advanced analytics and reporting endpoints
+        // - Multi-language and multi-currency support
+        // - Advanced inventory management with forecasting
 
     });

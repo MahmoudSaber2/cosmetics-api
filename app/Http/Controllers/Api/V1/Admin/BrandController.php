@@ -487,10 +487,77 @@ class BrandController extends Controller implements HasMiddleware
      */
     public function destroy(Brand $brand)
     {
-
         $brand->delete();
 
         return ApiResponse::success([], __('messages.deleted'));
+    }
+
+    /**
+     * @OA\Put(
+     *     path="/api/v1/admin/brands/{id}/restore",
+     *     summary="Restore a soft deleted brand",
+     *     description="Restore a brand that was previously soft deleted",
+     *     operationId="restoreBrand",
+     *     tags={"Brands"},
+     *     security={{"sanctum": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Brand ID",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Brand restored successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Brand restored successfully"),
+     *             @OA\Property(property="data", type="array", @OA\Items())
+     *         )
+     *     )
+     * )
+     */
+    public function restore($id)
+    {
+        $brand = Brand::withTrashed()->findOrFail($id);
+        $brand->restore();
+
+        return ApiResponse::success([], __('messages.restored'));
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/admin/brands/{id}/force-delete",
+     *     summary="Permanently delete a brand",
+     *     description="Permanently delete a brand from the database",
+     *     operationId="forceDeleteBrand",
+     *     tags={"Brands"},
+     *     security={{"sanctum": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Brand ID",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Brand permanently deleted",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Brand permanently deleted"),
+     *             @OA\Property(property="data", type="array", @OA\Items())
+     *         )
+     *     )
+     * )
+     */
+    public function forceDelete($id)
+    {
+        $brand = Brand::withTrashed()->findOrFail($id);
+        $brand->forceDelete();
+
+        return ApiResponse::success([], __('messages.permanently_deleted'));
     }
 
 }

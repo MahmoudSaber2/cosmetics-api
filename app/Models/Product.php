@@ -3,14 +3,15 @@
 namespace App\Models;
 
 use App\Enums\ProductStatusEnum;
+use App\Traits\CreatedUpdatedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, CreatedUpdatedBy, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
