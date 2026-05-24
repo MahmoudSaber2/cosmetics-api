@@ -1,0 +1,71 @@
+<?php
+
+return [
+    'welcome' => 'مرحباً',
+    'home' => 'الرئيسية',
+    'about' => 'حول',
+    'contact' => 'اتصل بنا',
+    'language' => 'اللغة',
+    'arabic' => 'العربية',
+    'english' => 'الإنجليزية',
+    'switch_language' => 'تغيير اللغة',
+    'hello_world' => 'مرحباً بالعالم',
+    'dashboard' => 'لوحة التحكم',
+    'profile' => 'الملف الشخصي',
+    'settings' => 'الإعدادات',
+    'logout' => 'تسجيل الخروج',
+    'login' => 'تسجيل الدخول',
+    'register' => 'إنشاء حساب',
+
+    // API Messages
+    'success' => 'تم بنجاح',
+    'error' => 'حدث خطأ',
+    'not_found' => 'غير موجود',
+    'unauthorized' => 'غير مصرح',
+    'forbidden' => 'ممنوع',
+    'validation_failed' => 'فشل في التحقق من البيانات',
+    'created' => 'تم الإنشاء بنجاح',
+    'updated' => 'تم التحديث بنجاح',
+    'deleted' => 'تم الحذف بنجاح',
+    'retrieved' => 'تم الاسترجاع بنجاح',
+    'logged_out' => 'تم تسجيل الخروج بنجاح',
+    'invalid_credentials' => 'البريد الالكتروني أو كلمة المرور غير صحيحة.',
+    'client_has_orders' => 'لا يمكن حذف العميل لأنه لديه طلبات مرتبطة.',
+    'brand_has_products' => 'لا يمكن حذف الماركة لأنها تحتوي على منتجات مرتبطة.',
+    'product_has_orders' => 'لا يمكن حذف المنتج لأنه مرتبط بطلبات.',
+    'order_created_successfully' => 'تم إنشاء الطلب بنجاح',
+    'product_out_of_stock' => 'الكمية غير متوفراو المنتج غير متوفر',
+    'product_not_available' => 'المنتج غير متاح',
+    'order_approved_successfully' => 'تمت الموافقة على الطلب بنجاح',
+    'order_rejected_successfully' => 'تم رفض الطلب بنجاح',
+    'order_delivered_successfully' => 'تم تسليم الطلب بنجاح',
+    'order_cancelled_successfully' => 'تم الغاء الطلب بنجاح',
+    'order_returned_successfully' => 'تم استرجاع الطلب بنجاح',
+    'in_active_user' => 'هذا الحساب غير نشط',
+    'only_pending_orders_can_be_approved' => 'يمكن الموافقة على الطلبات المعلقة فقط',
+    'only_pending_orders_can_be_rejected' => 'يمكن رفض الطلبات المعلقة فقط',
+    'only_approved_orders_can_be_completed' => 'يمكن تسليم الطلبات التى تم الموافقة عليها فقط',
+
+    // Media Messages
+    'media_uploaded_successfully' => 'تم رفع الملفات بنجاح',
+    'media_deleted_successfully' => 'تم حذف الملف بنجاح',
+    'media_set_as_main' => 'تم تعيين الملف كصورة رئيسية',
+    'media_not_found' => 'الملف غير موجود',
+    'cannot_delete_main_media' => 'لا يمكن حذف الصورة الرئيسية عندما توجد صور أخرى',
+
+    // Soft Delete Messages
+    'restored' => 'تم الاستعادة بنجاح',
+    'permanently_deleted' => 'تم الحذف نهائياً',
+
+    // Payment Messages
+    'payment_intent_created' => 'تم إنشاء نية الدفع بنجاح',
+    'payment_intent_creation_failed' => 'فشل في إنشاء نية الدفع',
+    'payment_confirmed' => 'تم تأكيد الدفع بنجاح',
+    'payment_confirmation_failed' => 'فشل في تأكيد الدفع',
+    'payment_status_updated' => 'تم تحديث حالة الدفع',
+    'payment_status_retrieved' => 'تم استرجاع حالة الدفع',
+    'payment_failed' => 'فشل في عملية الدفع',
+    'payment_processing' => 'جاري معالجة الدفع',
+
+
+];

@@ -1,0 +1,880 @@
+openapi: 3.1.0
+info:
+  title: Cosmetics E-commerce API
+  description: A comprehensive API for managing a cosmetics e-commerce platform with admin dashboard and public store functionality.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@cosmetics.com
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local development server
+
+security:
+  - BearerAuth: []
+
+paths:
+  # Authentication Endpoints
+  /public/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Admin Login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: admin@admin.com
+                password:
+                  type: string
+                  example: mans123456
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+
+  /public/auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Admin Logout
+      responses:
+        "200":
+          description: Logout successful
+
+  /public/auth/user:
+    get:
+      tags:
+        - Authentication
+      summary: Get Current User
+      responses:
+        "200":
+          description: User details retrieved
+
+  # Public Product Endpoints
+  /public/products:
+    get:
+      tags:
+        - Public Products
+      summary: Get All Products
+      security: []
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search in name, brand, type, description
+        - name: brand
+          in: query
+          schema:
+            type: string
+          description: Filter by brand
+        - name: type
+          in: query
+          schema:
+            type: string
+          description: Filter by type
+        - name: gender
+          in: query
+          schema:
+            type: string
+            enum: [men, women, unisex]
+          description: Filter by gender
+        - name: color
+          in: query
+          schema:
+            type: string
+          description: Filter by color
+        - name: size
+          in: query
+          schema:
+            type: string
+          description: Filter by size
+        - name: min_price
+          in: query
+          schema:
+            type: number
+          description: Minimum price
+        - name: max_price
+          in: query
+          schema:
+            type: number
+          description: Maximum price
+        - name: in_stock
+          in: query
+          schema:
+            type: boolean
+          description: Filter by stock availability
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [name, brand, type, price, created_at]
+          description: Sort field
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort direction
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            maximum: 50
+          description: Items per page
+      responses:
+        "200":
+          description: Products retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductsResponse"
+
+  /public/products/{id}:
+    get:
+      tags:
+        - Public Products
+      summary: Get Single Product
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+        "404":
+          description: Product not found
+
+  /public/products/{id}/availability:
+    post:
+      tags:
+        - Public Products
+      summary: Check Product Availability
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - quantity
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+      responses:
+        "200":
+          description: Availability checked successfully
+
+  /public/products/{id}/stock:
+    get:
+      tags:
+        - Public Products
+      summary: Get Product Stock
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Stock information retrieved
+
+  /public/products-search:
+    get:
+      tags:
+        - Public Products
+      summary: Search Products
+      security: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 100
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 10
+      responses:
+        "200":
+          description: Search results retrieved
+
+  /public/products-featured:
+    get:
+      tags:
+        - Public Products
+      summary: Get Featured Products
+      security: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            maximum: 20
+            default: 8
+      responses:
+        "200":
+          description: Featured products retrieved
+
+  /public/products-filters:
+    get:
+      tags:
+        - Public Products
+      summary: Get Filter Options
+      security: []
+      responses:
+        "200":
+          description: Filter options retrieved
+
+  # Public Order Endpoints
+  /public/orders:
+    post:
+      tags:
+        - Public Orders
+      summary: Create Order
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRequest"
+      responses:
+        "201":
+          description: Order created successfully
+        "422":
+          description: Validation error
+
+  /public/orders/{id}:
+    get:
+      tags:
+        - Public Orders
+      summary: Get Order Details
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Order retrieved successfully
+        "404":
+          description: Order not found
+
+  /public/orders-track:
+    get:
+      tags:
+        - Public Orders
+      summary: Track Orders by Email
+      security: []
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        "200":
+          description: Orders retrieved successfully
+        "404":
+          description: No orders found
+
+  /public/orders-validate-cart:
+    post:
+      tags:
+        - Public Orders
+      summary: Validate Cart
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - items
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/CartItem"
+      responses:
+        "200":
+          description: Cart validation completed
+
+  # Public Client Endpoints
+  /public/clients:
+    post:
+      tags:
+        - Public Clients
+      summary: Register Client
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClientRequest"
+      responses:
+        "201":
+          description: Client created successfully
+
+  /public/clients/by-email:
+    get:
+      tags:
+        - Public Clients
+      summary: Get Client by Email
+      security: []
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        "200":
+          description: Client retrieved successfully
+        "404":
+          description: Client not found
+
+  # Admin Product Endpoints
+  /admin/products:
+    get:
+      tags:
+        - Admin Products
+      summary: Get All Products (Admin)
+      parameters:
+        - name: stock_status
+          in: query
+          schema:
+            type: string
+            enum: [in_stock, out_of_stock, low_stock]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        "200":
+          description: Products retrieved successfully
+
+    post:
+      tags:
+        - Admin Products
+      summary: Create Product
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/ProductRequest"
+      responses:
+        "201":
+          description: Product created successfully
+
+  /admin/products/{id}:
+    get:
+      tags:
+        - Admin Products
+      summary: Get Single Product (Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product retrieved successfully
+
+    put:
+      tags:
+        - Admin Products
+      summary: Update Product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/ProductRequest"
+      responses:
+        "200":
+          description: Product updated successfully
+
+    delete:
+      tags:
+        - Admin Products
+      summary: Delete Product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product deleted successfully
+
+  # Admin Inventory Endpoints
+  /admin/inventory:
+    get:
+      tags:
+        - Admin Inventory
+      summary: Get All Inventory
+      parameters:
+        - name: stock_status
+          in: query
+          schema:
+            type: string
+            enum: [in_stock, out_of_stock, low_stock]
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: brand
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: min_stock
+          in: query
+          schema:
+            type: integer
+        - name: max_stock
+          in: query
+          schema:
+            type: integer
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [stock_quantity, min_stock_level, updated_at, product_name]
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            maximum: 100
+      responses:
+        "200":
+          description: Inventory retrieved successfully
+
+  /admin/inventory/{inventory_id}:
+    get:
+      tags:
+        - Admin Inventory
+      summary: Get Single Inventory Item
+      parameters:
+        - name: inventory_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Inventory item retrieved successfully
+
+    patch:
+      tags:
+        - Admin Inventory
+      summary: Update Inventory Item
+      parameters:
+        - name: inventory_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stock_quantity:
+                  type: integer
+                  minimum: 0
+                min_stock_level:
+                  type: integer
+                  minimum: 0
+      responses:
+        "200":
+          description: Inventory updated successfully
+
+  /admin/inventory/products/{product_id}/stock:
+    patch:
+      tags:
+        - Admin Inventory
+      summary: Update Product Stock
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - stock_quantity
+              properties:
+                stock_quantity:
+                  type: integer
+                  minimum: 0
+                operation:
+                  type: string
+                  enum: [set, add, subtract]
+                  default: set
+      responses:
+        "200":
+          description: Stock updated successfully
+
+  /admin/inventory-low-stock:
+    get:
+      tags:
+        - Admin Inventory
+      summary: Get Low Stock Alerts
+      responses:
+        "200":
+          description: Low stock alerts retrieved
+
+  /admin/inventory-out-of-stock:
+    get:
+      tags:
+        - Admin Inventory
+      summary: Get Out of Stock Items
+      responses:
+        "200":
+          description: Out of stock items retrieved
+
+  /admin/inventory-statistics:
+    get:
+      tags:
+        - Admin Inventory
+      summary: Get Inventory Statistics
+      responses:
+        "200":
+          description: Inventory statistics retrieved
+
+  /admin/inventory-bulk-update:
+    patch:
+      tags:
+        - Admin Inventory
+      summary: Bulk Update Stock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - updates
+              properties:
+                updates:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - product_id
+                      - stock_quantity
+                    properties:
+                      product_id:
+                        type: integer
+                      stock_quantity:
+                        type: integer
+                        minimum: 0
+                      operation:
+                        type: string
+                        enum: [set, add, subtract]
+                        default: set
+      responses:
+        "200":
+          description: Bulk update completed
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            user:
+              $ref: "#/components/schemas/User"
+            token:
+              type: string
+        message:
+          type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        brand:
+          type: string
+        type:
+          type: string
+        color:
+          type: string
+        size:
+          type: string
+        gender:
+          type: string
+          enum: [men, women, unisex]
+        price:
+          type: string
+        image_url:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive]
+        inventory:
+          type: object
+          properties:
+            stock_quantity:
+              type: integer
+            min_stock_level:
+              type: integer
+        in_stock:
+          type: boolean
+        is_low_stock:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ProductsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/Product"
+            current_page:
+              type: integer
+            last_page:
+              type: integer
+            per_page:
+              type: integer
+            total:
+              type: integer
+            from:
+              type: integer
+            to:
+              type: integer
+        message:
+          type: string
+
+    ProductResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/Product"
+        message:
+          type: string
+
+    ProductRequest:
+      type: object
+      required:
+        - name
+        - brand
+        - type
+        - gender
+        - price
+        - status
+        - stock_quantity
+        - min_stock_level
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 1000
+        brand:
+          type: string
+          maxLength: 255
+        type:
+          type: string
+          maxLength: 255
+        color:
+          type: string
+          maxLength: 100
+        size:
+          type: string
+          maxLength: 50
+        gender:
+          type: string
+          enum: [men, women, unisex]
+        price:
+          type: number
+          minimum: 0
+        status:
+          type: string
+          enum: [active, inactive]
+        stock_quantity:
+          type: integer
+          minimum: 0
+        min_stock_level:
+          type: integer
+          minimum: 0
+        image:
+          type: string
+          format: binary
+
+    ClientRequest:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        phone:
+          type: string
+          maxLength: 20
+        address:
+          type: string
+          maxLength: 500
+        city:
+          type: string
+          maxLength: 100
+
+    CartItem:
+      type: object
+      required:
+        - product_id
+        - quantity
+      properties:
+        product_id:
+          type: integer
+        quantity:
+          type: integer
+          minimum: 1
+
+    CreateOrderRequest:
+      type: object
+      required:
+        - client
+        - items
+      properties:
+        client:
+          $ref: "#/components/schemas/ClientRequest"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartItem"
+        notes:
+          type: string
+          maxLength: 1000
+
+tags:
+  - name: Authentication
+    description: Authentication endpoints
+  - name: Public Products
+    description: Public product endpoints (no authentication required)
+  - name: Public Orders
+    description: Public order endpoints (no authentication required)
+  - name: Public Clients
+    description: Public client endpoints (no authentication required)
+  - name: Admin Products
+    description: Admin product management endpoints
+  - name: Admin Inventory
+    description: Admin inventory management endpoints
